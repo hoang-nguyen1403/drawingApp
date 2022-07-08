@@ -17,64 +17,68 @@
 
 	<div class="landing_page">
 		<div id="tool_left">
-			<div id="input">
-				<p id="tool_label">Tools</p>
-				<div id="setting">
-					<div>
-						<label id="colorpicker_label">
-							<input type="color" id="line_color" name="color" style="display: none">
-						</label>
-						<input type="number" name="size" min="1" max="10" id="line_size" value="5">
-					</div>
-					<div>
-						<button id="grid" type="button" class="option-btn btn-off btn" onclick="PaintIn.buttonGrid()"
-							style="background-image: url(img/grid.png)" value="Off"></button>
-						<input type="range" name="sizeGrid" min="10" max="100" id="sizeGrid" class="rangeSlider">
-					</div>
-				</div>
-				<div id="type">
-					<button id="brush" class="btn" type="button" onclick="PaintIn.chooseBrush()" value="Off"
-						style="background-image: url(img/brush.png)"></button>
-					<button id="line" class="btn" type="button" onclick="PaintIn.chooseLine()" value="Off"
-						style="background-image: url(img/line.png)"></button>
-					<button id="circle" class="btn" type="button" onclick="PaintIn.chooseCircle()" value="Off"
-						style="background-image: url(img/circle.png)"></button>
-					<button id="rect" class="btn" type="button" onclick="PaintIn.chooseRect()" value="Off"
-						style="background-image: url(img/rectangle.png)"></button>
-					<button id="spl" class="btn" type="button" onclick="PaintIn.chooseSpl()" value="Off"
-						style="background-image: url(img/spline.png)"></button>
-					<button id="select" type="button" onclick="PaintIn.chooseSelect()" value="Off"
-						style="background-image: url(img/select.png)"></button>
-					<button id="areaDetect" class="btn" type="button"
-						onclick="processingData.prototype.areaDetect(processingData.allLine)"
-						style="background-image: url(img/detect.png)" value="Off"></button>
-
-
-					<button id="valueName" class="btn" type="button" onclick="PaintIn.addValue()"
-						value="Off">ID</button>
-					<button id="drawForce" class="btn" type="button"
-						onclick="PaintIn.buttonDrawForce()"
-						value="Off">Force</button>
-					<label id="openFile_label">
-						<input type="file" name="openFile" id="openFile" style="display: none">
+			<div id="inOutData">
+				<p id="dataLabel" style="border-top:0px;">Data</p>
+				<label id="openFile_label">
+					<input type="file" name="openFile" id="openFile" style="display: none">
+				</label>
+				<button id="saveFile" class="btn" type="button" onclick="processingData.prototype.saveObj()" value="Off"
+					style="background-image: url(img/save.png)"></button>
+			</div>
+			<div id="style">
+				<p id="styleLabel">Style</p>
+				<div>
+					<label id="colorpicker_label">
+						<input type="color" id="line_color" name="color" style="display: none">
 					</label>
-					<button id="saveFile" class="btn" type="button"
-						onclick="processingData.prototype.saveObj()" value="Off"
-						style="background-image: url(img/save.png)"></button>
-
+					<input type="number" name="size" min="1" max="10" id="line_size" value="5">
 				</div>
-				<div id="clear_undo">
-					<!-- CHANGE KEYCODE DELETE -->
-					<button id="Delete" type="button" onclick="PaintIn.deleteCurObj()"
-						style="background-image: url(img/delete.png)"></button>
-					<button id="Clear_all" type="button" onclick="PaintIn.clearAll()"
-						style="background-image: url(img/clearall.jpg)"></button>
+				<div>
+					<button id="grid" type="button" class="option-btn btn-off btn" onclick="PaintIn.buttonGrid()"
+						style="background-image: url(img/grid.png)" value="Off"></button>
+					<input type="range" name="sizeGrid" min="10" max="100" id="sizeGrid" class="rangeSlider">
 				</div>
+			</div>
+			<div id="shape">
+				<p id="shapeLabel">Shape</p>
+				<button id="brush" class="btn" type="button" onclick="PaintIn.chooseBrush()" value="Off"
+					style="background-image: url(img/brush.png)"></button>
+				<button id="line" class="btn" type="button" onclick="PaintIn.chooseLine()" value="Off"
+					style="background-image: url(img/line.png)"></button>
+				<button id="circle" class="btn" type="button" onclick="PaintIn.chooseCircle()" value="Off"
+					style="background-image: url(img/circle.png)"></button>
+				<button id="rect" class="btn" type="button" onclick="PaintIn.chooseRect()" value="Off"
+					style="background-image: url(img/rectangle.png)"></button>
+				<button id="spl" class="btn" type="button" onclick="PaintIn.chooseSpl()" value="Off"
+					style="background-image: url(img/spline.png)"></button>
+				<button id="areaDetect" class="btn" type="button" onclick="PaintIn.buttonDetectArea()"
+					style="background-image: url(img/detect.png)" value="Off"></button>
+			</div>
+			<div id="BDCondition">
+				<p id="BDLabel">Tool</p>
 
+				<button id="select" class="btn" type="button" onclick="PaintIn.chooseSelect()" value="Off"
+					style="background-image: url(img/select.png)"></button>
+				<button id="valueNamePoint" class="btn" type="button"
+					onclick="PaintIn.addValueNamePoint()" value="Off">Point</button>
+				<button id="valueNameLine" class="btn" type="button"
+					onclick="PaintIn.addValueNameLine()" value="Off">Line</button>
+				<button id="valueNameArea" class="btn" type="button"
+					onclick="PaintIn.addValueNameArea()" value="Off">Area</button>
+				<button id="drawForce" class="btn" type="button" onclick="PaintIn.buttonDrawForce()"
+					value="Off">Force</button>
 			</div>
-			<div id="property">
-				<p id="property_label">Properties</p>
+			<div id="clear_undo">
+				<p id="EditLabel">Edit</p>
+				<!-- <button id="select" type="button" onclick="PaintIn.chooseSelect()" value="Off"
+					style="background-image: url(img/select.png)"></button> -->
+				<button id="Delete" type="button" onclick="PaintIn.deleteCurObj()"
+					style="background-image: url(img/delete.png)"></button>
+				<button id="Clear_all" type="button" onclick="PaintIn.clearAll()"
+					style="background-image: url(img/clearall.jpg)"></button>
 			</div>
+			<!-- 
+			</div> -->
 			<!-- <div class="Paint">
 				<div id="tool_draw">
 					<button id="line"><b>Line</b></button> <br>
@@ -95,10 +99,13 @@
 
 		<div id="drawing_page">
 			<canvas id="myCanvas">
-				<div id="RadiusLightNode"></div>
+				<!-- <div id="RadiusLightNode"></div> -->
 			</canvas>
 		</div>
 		<div id="tool_right">
+			<div id="property">
+				<p id="property_label">Properties</p>
+			</div>
 		</div>
 
 	</div>
@@ -122,10 +129,10 @@
 	<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 	<script src="JS/math.js"></script>
 	<!-- SPL library -->
-	<script src="JS/p5.min.js"></script>
+	<!-- <script src="JS/p5.min.js"></script>
 	<script src="JS/p5.dom.min.js"></script>
 	<script src="JS/p5.sound.min.js"></script>
-	<script src="JS/jsspline.js"></script>
+	<script src="JS/jsspline.js"></script> -->
 	<script src="JS/CanvasInput.js"></script>
 	<script src="JS/fileSaver/src/FileSaver.js"></script>
 

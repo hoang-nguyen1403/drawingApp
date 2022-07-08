@@ -13,21 +13,28 @@ class processingData {
     };
     //----Create Object
     //Point
-    createPoint(arrPointX, arrPointY) {
+    createPoint(arrPointX, arrPointY, nameList, forceList) {
         let AllPointObj = [];
         for (let index = 0; index <= arrPointX.length - 1; index++) {
-            let PointObj = new Point([arrPointX[index], arrPointY[index]]);
+            let point = [arrPointX[index], arrPointY[index]];
+            let pointName = nameList[index];
+            let pointForce = forceList[index];
+            let PointObj = new Point(point, pointName, pointForce);
             AllPointObj.push(PointObj);
         };
         return AllPointObj;
     };
     //Line
-    createLine(PointList, lineColor) {
+    createLine(PointList, nameList, colorList, widthList, forceList) {
         let AllLineObj = [];
         for (let index = 0; index <= PointList.length - 2; index++) {
             let Point1 = PointList[index];
             let Point2 = PointList[index + 1];
-            let LineObj = new Line(Point1, Point2, lineColor);
+            let lineName = nameList[index];
+            let lineColor = colorList[index];
+            let lineWidth = widthList[index];
+            let lineForce = forceList[index];
+            let LineObj = new Line(Point1, Point2, lineName, lineColor, lineWidth, lineForce);
             AllLineObj.push(LineObj);
         };
         //Save in allline
@@ -35,37 +42,32 @@ class processingData {
         return AllLineObj;
     }
 
-    inputRawData(Type, Arr1, Arr2, lineColor = PaintIn.currentColor) {
+    inputRawData(Type, Arr1, Arr2, listPointName, listLineName, colorList, widthList, arrForcePoint, arrForceLine) {
+        if (listPointName === undefined) {
+            listPointName = Array(Arr1.length).fill(undefined);
+        }
+        if (listLineName === undefined) {
+            listLineName = Array(Arr1.length - 1).fill(undefined);
+        }
+        if (colorList === undefined) {
+            colorList = Array(Arr1.length - 1).fill(undefined);
+        }
+        if (widthList === undefined) {
+            widthList = Array(Arr1.length - 1).fill(undefined);
+        }
+        if (arrForcePoint === undefined) {
+            arrForcePoint = Array(Arr1.length).fill(undefined);
+        }
+        if (arrForceLine === undefined) {
+            arrForceLine = Array(Arr1.length - 1).fill(undefined);
+        }
         switch (Type) {
             case "line":
                 {
-                    // if ((Math.abs(Arr1[0] - Arr1[Arr1.length - 1]) < 3) &&
-                    //     (Math.abs(Arr2[0] - Arr2[Arr2.length - 1]) < 3) &&
-                    //     (Arr1.length >= 3)) {
-                    //     //First point === endpoint
-                    //     Arr1[Arr1.length - 1] = Arr1[0];
-                    //     Arr2[Arr1.length - 1] = Arr2[0];
-                    //     // create Point
-                    //     let AllPointObj = this.createPoint(Arr1, Arr2);
-                    //     // create line
-                    //     let AllLineObj = this.createLine(AllPointObj, lineColor);
-                    //     // create area
-                    //     let area = new Area(AllLineObj);
-                    //     //save point
-                    //     for (let Point of AllPointObj) {
-                    //         processingData.prototype.addObject(Point, processingData.allPoint);
-                    //     };
-                    //     //save line
-                    //     for (let Line of AllLineObj) {
-                    //         processingData.prototype.addObject(Line, processingData.allLine);
-                    //     };
-                    //     //save area
-                    //     processingData.prototype.addObject(area, processingData.allArea);
-                    // } {
                     // create Point
-                    let AllPointObj = this.createPoint(Arr1, Arr2);
+                    let AllPointObj = this.createPoint(Arr1, Arr2, listPointName, arrForcePoint);
                     // create line
-                    let AllLineObj = this.createLine(AllPointObj, lineColor);
+                    let AllLineObj = this.createLine(AllPointObj, listLineName, colorList, widthList, arrForceLine);
                     //save line
                     for (let line of AllLineObj) {
                         processingData.prototype.addObject(line, processingData.allLine);
@@ -74,19 +76,21 @@ class processingData {
                 this.updateStorage();
                 break;
             case "rect":
-                let Arr1_ = [Arr1[0], Arr1[1], Arr1[1], Arr1[0], Arr1[0]];
-                let Arr2_ = [Arr2[0], Arr2[0], Arr2[1], Arr2[1], Arr2[0]];
-                // create Point
-                let AllPointObj = this.createPoint(Arr1_, Arr2_);
-                // create line
-                let AllLineObj = this.createLine(AllPointObj, lineColor);
-                // //save area
-                for (let line of AllLineObj) {
-                    processingData.prototype.addObject(line, processingData.allLine);
-                };
-                // processingData.prototype.addObject(area, processingData.allArea);
-                this.updateStorage();
-                break;
+                {
+                    let Arr1_ = [Arr1[0], Arr1[1], Arr1[1], Arr1[0], Arr1[0]];
+                    let Arr2_ = [Arr2[0], Arr2[0], Arr2[1], Arr2[1], Arr2[0]];
+                    // create Point
+                    let AllPointObj = this.createPoint(Arr1_, Arr2_, listPointName, arrForcePoint);
+                    // create line
+                    let AllLineObj = this.createLine(AllPointObj, listLineName, colorList, widthList, arrForceLine);
+                    // //save area
+                    for (let line of AllLineObj) {
+                        processingData.prototype.addObject(line, processingData.allLine);
+                    };
+                    // processingData.prototype.addObject(area, processingData.allArea);
+                    this.updateStorage();
+                    break;
+                }
         };
     }
 
@@ -129,19 +133,22 @@ class processingData {
     }
 
     areaDetect(Line_List) {
-        PaintIn.onOffButton(PaintIn.currentValueDetectArea, "areaDetect");
+        // PaintIn.onOffButton(PaintIn.currentValueDetectArea, "areaDetect");
         this.isCancled = false;
-
         let Line_List_copy = [...Line_List];
         processingData.allLine = [];
         processingData.allArea = [];
 
         let AreaResult = [];
         let PointFlowResult = [];
-
         let arrEndLineX = [];
         let arrEndLineY = [];
+        let arrEndLineName = [];
+        let arrEndLinePointName = [];
         let arrEndLineColor = [];
+        let arrEndLineWidth = [];
+        let arrEndLinePointForce = [];
+        let arrEndLineForce = [];
         for (let i = 0; i <= Line_List_copy.length - 1; i++) {
             let arrIntersPoint = [];
             let arrSubLineX = [];
@@ -161,7 +168,11 @@ class processingData {
                     }
                 }
             }
-            if (arrIntersPoint.length === 0) continue;
+            //when dont have IntersPoint
+            if (arrIntersPoint.length === 0) {
+                processingData.allLine.push(Line_List_copy[i])
+                continue;
+            }
             //sort by distance from endpoint
             let endPoint1 = Line_List_copy[i].Point[0].point;
             let endPoint2 = Line_List_copy[i].Point[1].point;
@@ -183,29 +194,38 @@ class processingData {
                 EndLine1Y.push(endPoint1[1], arrIntersPoint[0][1]);
                 arrEndLineX.push(EndLine1X);
                 arrEndLineY.push(EndLine1Y);
-                arrEndLineColor.push(Line_List_copy[i].color);
+                arrEndLineName.push([Line_List_copy[i].name]);
+                arrEndLinePointName.push([Line_List_copy[i].Point[0].name, undefined]);
+                arrEndLineColor.push([Line_List_copy[i].color]);
+                arrEndLineWidth.push([Line_List_copy[i].width]);
+                arrEndLinePointForce.push([Line_List_copy[i].Point[0].force, undefined]);
+                arrEndLineForce.push([Line_List_copy[i].force])
+
             }
             if (JSON.stringify(endPoint2) !== JSON.stringify(arrIntersPoint[arrIntersPoint.length - 1])) {
                 EndLine2X.push(arrIntersPoint[arrIntersPoint.length - 1][0], endPoint2[0]);
                 EndLine2Y.push(arrIntersPoint[arrIntersPoint.length - 1][1], endPoint2[1]);
                 arrEndLineX.push(EndLine2X);
                 arrEndLineY.push(EndLine2Y);
-                arrEndLineColor.push(Line_List_copy[i].color);
+                arrEndLineName.push([Line_List_copy[i].name]);
+                arrEndLinePointName.push([undefined, Line_List_copy[i].Point[1].name]);
+                arrEndLineColor.push([Line_List_copy[i].color]);
+                arrEndLineWidth.push([Line_List_copy[i].width]);
+                arrEndLinePointForce.push([undefined, Line_List_copy[i].Point[0].force]);
+                arrEndLineForce.push([Line_List_copy[i].force])
             }
             //
-            processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, Line_List_copy[i].color);
+            processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, Line_List_copy[i].name,
+                Line_List_copy[i].color, Line_List_copy[i].width, undefined, Line_List_copy[i].force);
 
-        }
-        // save end line
-        for (let i = 0; i <= arrEndLineX.length - 1; i++) {
-            processingData.prototype.inputRawData("line", arrEndLineX[i], arrEndLineY[i], arrEndLineColor[i]);
-        };
-        if (processingData.allLine.length === 0) {
-            processingData.allLine = [...Line_List_copy];
-            return;
         }
         //-----------------//
         let segmentLine = [...processingData.allLine];
+        // save end line
+        for (let i = 0; i <= arrEndLineX.length - 1; i++) {
+            processingData.prototype.inputRawData("line", arrEndLineX[i], arrEndLineY[i], arrEndLinePointName[i],
+                arrEndLineName[i], arrEndLineColor[i], arrEndLineWidth[i], arrEndLinePointForce[i], arrEndLineForce[i]);
+        }
         let exceptIndex = [];
         for (let index1 = 0; index1 <= segmentLine.length - 1; index1++) {
             if (exceptIndex.indexOf(index1) !== -1) {
@@ -218,6 +238,7 @@ class processingData {
             arrPointFlow.push(segmentLine[index1].Point[1].point);
             let orientation = "";
             while (true) {
+                console.log(arrLineFlow)
                 let arrNextLine = [];
                 let arrNextPoint = [];
                 let point1OfLine1 = arrLineFlow[arrLineFlow.length - 1].Point[0].point;
@@ -274,8 +295,9 @@ class processingData {
                     arrLineFlow.push(arrNextLine[0]);
                     arrPointFlow.push(arrNextLine[0].Point[1].point);
                 }
-                if (JSON.stringify(arrPointFlow[arrPointFlow.length - 1]) === JSON.stringify(arrLineFlow[0].Point[0].point)) {
-                    //get resutl;
+                if (JSON.stringify(arrPointFlow[arrPointFlow.length - 1]) ===
+                    JSON.stringify(arrLineFlow[0].Point[0].point)) {
+                    //get resutl
                     console.log("getResult")
                     AreaResult.push(arrLineFlow);
                     PointFlowResult.push(arrPointFlow);
@@ -287,9 +309,10 @@ class processingData {
                 }
             }
         }
+        console.log(processingData.allLine)
         //create area object       
         for (let i = 0; i <= AreaResult.length - 1; i++) {
-            let areaObj = new Area(AreaResult[i], PointFlowResult[i]);
+            let areaObj = new Area(AreaResult[i], undefined, PointFlowResult[i]);
             processingData.prototype.addObject(areaObj, processingData.allArea);
         }
         //
@@ -413,19 +436,23 @@ class processingData {
             if (inputData[i].className === "Line") {
                 let point1 = inputData[i].Point[0];
                 let point2 = inputData[i].Point[1];
-                let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y]);
-                let lineObj = this.createLine(allPointObj, inputData[i].lineColor);
+                let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y],
+                    [point1.name, point2.name], [point1.force, point2.force]);
+                let lineObj = this.createLine(allPointObj, [inputData[i].name], [inputData[i].lineColor],
+                    [inputData[i].lineWidth], [inputData[i].force]);
                 this.addObject(lineObj[0], processingData.allLine);
             } else if (inputData[i].className === "Area") {
                 let allLineObj = [];
                 for (let line of inputData[i].Line) {
                     let point1 = line.Point[0];
                     let point2 = line.Point[1];
-                    let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y]);
-                    let lineObj = this.createLine(allPointObj);
+                    let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y],
+                        [point1.name, point2.name], [point1.force, point2.force]);
+                    let lineObj = this.createLine(allPointObj, [line.name], [line.lineColor],
+                        [line.lineWidth], [line.force]);
                     allLineObj.push(lineObj[0]);
                 }
-                let areaObj = new Area(allLineObj, inputData[i].PointFlow);
+                let areaObj = new Area(allLineObj, inputData[i].name, inputData[i].PointFlow);
                 this.addObject(areaObj, processingData.allArea)
             }
         }
@@ -437,11 +464,13 @@ class processingData {
 };
 // Point class
 class Point {
-    constructor(Arr) {
+    constructor(Arr, pointName, force) {
         this.point = Arr;
         this.x = Arr[0];
         this.y = Arr[1];
         this.className = "Point";
+        this.name = pointName;
+        this.force = force;
     };
     //Method
     isInPoint(mouse) {
@@ -451,13 +480,15 @@ class Point {
 
 // Line class
 class Line {
-    constructor(Point1, Point2, lineColor, name) {
+    constructor(Point1, Point2, lineName, lineColor, lineWidth, force) {
         this.Point = [Point1, Point2];
         //
         this.length = math.norm(math.subtract(Point1.point, Point2.point))
         this.color = lineColor;
+        this.width = lineWidth;
         this.className = "Line";
-        this.name = name;
+        this.name = lineName;
+        this.force = force;
     }
     //Method
     isInLine(Mouse) {
@@ -469,9 +500,10 @@ class Line {
 };
 //Area
 class Area {
-    constructor(LineList, pointFlow) {
+    constructor(LineList, AreaName, pointFlow) {
         this.Line = LineList;
         this.PointFlow = pointFlow;
+        this.name = AreaName;
         //perimeter
         this.Perimeter = 0;
         for (let Line of LineList) {
@@ -544,11 +576,11 @@ function getNearest(listPoints, currentPoint) {
     return nearest = tree.nearest(currentPoint, 1);
 };
 
-var input;
+var inputID;
 
-function inputData(x, y, obj) {
-    if (PaintIn.currentValue.value === "On") {
-        input = new CanvasInput({
+function inputName(x, y, obj) {
+    if (PaintIn.curValNamePoint.value === "On" || PaintIn.curValNameLine.value === "On" || PaintIn.curValNameArea.value === "On") {
+        inputID = new CanvasInput({
             canvas: document.getElementById('myCanvas'),
             x: x,
             y: y,
