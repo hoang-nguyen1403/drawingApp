@@ -358,6 +358,7 @@ class Paint {
         this.offButtonDraw(this.currentValueRect, "rect");
         this.offButtonDraw(this.currentValueLine, "line");
         this.offButtonDraw(this.currentValueCircle, "circle");
+        this.offButton(this.currentValueDrawForce, "drawForce");
 
         this.onOffButtonDraw(this.currentValueSelect, "select");
 
@@ -365,7 +366,7 @@ class Paint {
             this.offButton(this.curValNamePoint, "valueNamePoint");
             this.offButton(this.curValNameLine, "valueNameLine");
             this.offButton(this.curValNameArea, "valueNameArea");
-            this.offButton(this.currentValueDrawForce, "drawForce");
+
         }
     }
     clearAll() {
@@ -468,7 +469,7 @@ class Paint {
         this.offButton(this.curValNameArea, "valueNameArea");
 
         this.onOffButton(this.currentValueDrawForce, "drawForce");
-    
+
         this.renderObject(processingData.allObject);
 
         // this.renderObject(processingData.allObject);
