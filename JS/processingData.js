@@ -215,8 +215,8 @@ class processingData {
                 arrEndLineForce.push([Line_List_copy[i].force])
             }
             //
-            processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, Line_List_copy[i].name,
-                Line_List_copy[i].color, Line_List_copy[i].width, undefined, Line_List_copy[i].force);
+            processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, [Line_List_copy[i].name],
+                [Line_List_copy[i].color], [Line_List_copy[i].width], undefined, [Line_List_copy[i].force]);
 
         }
         //-----------------//
