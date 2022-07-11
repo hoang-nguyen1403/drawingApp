@@ -243,8 +243,8 @@ class processingData {
             while (true) {
                 let arrNextLine = [];
                 let arrNextPoint = [];
-                let point1OfLine1 = arrLineFlow[arrLineFlow.length - 1].Point[0].point;
-                let point2OfLine1 = arrLineFlow[arrLineFlow.length - 1].Point[1].point;
+                let point1OfLine1 = arrLineFlow.at(-1).Point[0].point;
+                let point2OfLine1 = arrLineFlow.at(-1).Point[1].point;
                 for (let index2 = 0; index2 <= segmentLine.length - 1; index2++) {
                     if (index2 === index1) continue;
                     let point1OfNext = segmentLine[index2].Point[0].point;
@@ -291,13 +291,13 @@ class processingData {
                     } else orientation = "CCW"
                 }
                 if (orientation === "CW") {
-                    arrLineFlow.push(arrNextLine[arrNextLine.length - 1]);
-                    arrPointFlow.push(arrNextLine[arrNextLine.length - 1].Point[1].point);
+                    arrLineFlow.push(arrNextLine.at(-1));
+                    arrPointFlow.push(arrNextLine.at(-1).Point[1].point);
                 } else if (orientation === "CCW") {
                     arrLineFlow.push(arrNextLine[0]);
                     arrPointFlow.push(arrNextLine[0].Point[1].point);
                 }
-                if (JSON.stringify(arrPointFlow[arrPointFlow.length - 1]) ===
+                if (JSON.stringify(arrPointFlow.at(-1)) ===
                     JSON.stringify(arrLineFlow[0].Point[0].point)) {
                     //get resutl
                     console.log("getResult")
@@ -475,7 +475,7 @@ class Point {
         this.force = force;
     };
     //Method
-    isInPoint(mouse) {
+    isIn(mouse) {
         return (((mouse[0] - this.x) ** 2 + (mouse[1] - this.y) ** 2) < 3 ** 2) ? true : false
     }
 };
@@ -493,7 +493,7 @@ class Line {
         this.force = force;
     }
     //Method
-    isInLine(Mouse) {
+    isIn(Mouse) {
         let A_to_mouse = math.norm(math.subtract(this.Point[0].point, Mouse));
         let mouse_to_B = math.norm(math.subtract(Mouse, this.Point[1].point));
         return (A_to_mouse + mouse_to_B - this.length <= 0.1) ? true : false
@@ -546,7 +546,7 @@ class Area {
         //class Name
         this.className = "Area";
     };
-    isInArea([xMouse, yMouse]) {
+    isIn([xMouse, yMouse]) {
         let count = 0;
         for (let Line of this.Line) {
             let x1 = Line.Point[0].x;
@@ -581,27 +581,31 @@ function getNearest(listPoints, currentPoint) {
 var inputID;
 
 function inputName(x, y, obj) {
-    if (PaintIn.curValNamePoint.value === "On" || PaintIn.curValNameLine.value === "On" || PaintIn.curValNameArea.value === "On") {
-        inputID = new CanvasInput({
-            canvas: document.getElementById('myCanvas'),
-            x: x,
-            y: y,
-            fontSize: 18,
-            fontFamily: 'Arial',
-            fontColor: '#212121',
-            fontWeight: 'bold',
-            width: 25,
-            height: 25,
-            padding: 0,
-            borderColor: '#000',
-            borderRadius: 3,
+    inputID = new CanvasInput({
+        canvas: document.getElementById('myCanvas'),
+        x: x,
+        y: y,
+        fontSize: 18,
+        fontFamily: 'Arial',
+        fontColor: '#212121',
+        fontWeight: 'bold',
+        width: 25,
+        height: 25,
+        padding: 0,
+        borderColor: '#000',
+        borderRadius: 3,
 
-            onsubmit: function () {
-                PaintIn.drawText(obj, this.value());
-                obj.name = this.value();
-            },
-        });
-    }
+        onsubmit: function () {
+            PaintIn.drawText(obj, this.value());
+            obj.name = this.value();
+            this.destroy();
+            inputID = undefined;
+            PaintIn.renderObject(processingData.allObject);
+            PaintIn.arrCurObj =[];
+        },
+    });
+
+    
 };
 
 
