@@ -116,8 +116,8 @@ class processingData {
                 Exist: false
             }
         };
-
-        if ((T[0][0] <= 1 && T[0][0] >= 0) && (T[1][0] >= 0 && T[1][0] <= 1)) {
+        if ((math.round(T[0][0], 10) <= 1 && math.round(T[0][0], 10) >= 0) &&
+         (math.round(T[1][0], 10) >= 0 && math.round(T[1][0], 10) <= 1)) {
             var Point1x = x1 + (x2 - x1) * T[0][0];
             var Point1y = y1 + (y2 - y1) * T[0][0];
             return {
@@ -181,13 +181,6 @@ class processingData {
                 var distance2 = math.norm(math.subtract(value2, endPoint1));
                 return distance1 - distance2
             })
-            //create line bw inters point
-            for (let index = 0; index <= arrIntersPoint.length - 1; index++) {
-                //
-                arrSubLineX.push(arrIntersPoint[index][0]);
-                arrSubLineY.push(arrIntersPoint[index][1]);
-                //
-            }
             //keep end line
             if (JSON.stringify(endPoint1) !== JSON.stringify(arrIntersPoint[0])) {
                 EndLine1X.push(endPoint1[0], arrIntersPoint[0][0]);
@@ -202,9 +195,9 @@ class processingData {
                 arrEndLineForce.push([Line_List_copy[i].force])
 
             }
-            if (JSON.stringify(endPoint2) !== JSON.stringify(arrIntersPoint[arrIntersPoint.length - 1])) {
-                EndLine2X.push(arrIntersPoint[arrIntersPoint.length - 1][0], endPoint2[0]);
-                EndLine2Y.push(arrIntersPoint[arrIntersPoint.length - 1][1], endPoint2[1]);
+            if (JSON.stringify(endPoint2) !== JSON.stringify(arrIntersPoint.at(- 1))) {
+                EndLine2X.push(arrIntersPoint.at(-1)[0], endPoint2[0]);
+                EndLine2Y.push(arrIntersPoint.at(-1)[1], endPoint2[1]);
                 arrEndLineX.push(EndLine2X);
                 arrEndLineY.push(EndLine2Y);
                 arrEndLineName.push([Line_List_copy[i].name]);
@@ -215,8 +208,18 @@ class processingData {
                 arrEndLineForce.push([Line_List_copy[i].force])
             }
             //
-            processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, [Line_List_copy[i].name],
-                [Line_List_copy[i].color], [Line_List_copy[i].width], undefined, [Line_List_copy[i].force]);
+            if (arrIntersPoint.length >= 2) {
+                //create line bw inters point
+                for (let index = 0; index <= arrIntersPoint.length - 1; index++) {
+                    //
+                    arrSubLineX.push(arrIntersPoint[index][0]);
+                    arrSubLineY.push(arrIntersPoint[index][1]);
+                    //
+                }
+                processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, 
+                Array(arrSubLineX.length).fill(Line_List_copy[i].name), Array(arrSubLineX.length).fill(Line_List_copy[i].color), 
+                Array(arrSubLineX.length).fill(Line_List_copy[i].width), undefined, Array(arrSubLineX.length).fill(Line_List_copy[i].force));
+            }
 
         }
         //-----------------//
@@ -238,7 +241,6 @@ class processingData {
             arrPointFlow.push(segmentLine[index1].Point[1].point);
             let orientation = "";
             while (true) {
-                console.log(arrLineFlow)
                 let arrNextLine = [];
                 let arrNextPoint = [];
                 let point1OfLine1 = arrLineFlow[arrLineFlow.length - 1].Point[0].point;
