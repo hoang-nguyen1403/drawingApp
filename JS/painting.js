@@ -184,20 +184,14 @@ class Paint {
             this.arrSPL = [];
 
             //destroy box input
-            // if (this.currentValue.value === "Off") {
-            //     if (inputID !== undefined) {
-            //         inputID.destroy();
-            //     }
-            //     inputID = undefined;
-            //     this.renderObject(processingData.allObject);
-            // };
 
-            if (this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On") {
+            if (this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On") {
                 try {
                     inputID.destroy();
+                    this.arrCurObj = [];
+                    inputID = undefined;
                 }
                 catch (error) {
-                    inputID = undefined;
                     this.renderObject(processingData.allObject);
                 }
             }
@@ -271,13 +265,23 @@ class Paint {
             this.deleteCurObj();
         }
         //ENTER
-        if (event.keyCode === 13 && (this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On")) {
-            if (inputID !== undefined) {
-                inputID.destroy();
-            }
-            inputID = undefined;
-            this.renderObject(processingData.allObject);
-        }
+        // if (event.keyCode === 13 && (this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On")) {
+        //     // try {
+        //     //     inputID.destroy();
+        //     // }
+        //     // catch {
+        //     //     this.renderObject(processingData.allObject);
+        //     // }
+        //     // inputID = undefined;
+        //     // this.renderObject(processingData.allObject);
+
+        //     if (selectedObj === undefined) {
+        //         this.renderProperty("off", selectedObj);
+        //         this.arrCurObj = [];
+        //         return;
+        //     }
+        //     this.renderObject(processingData.allObject);
+        // }
     }
 
     concatArr(arr1, arr2) {
@@ -521,15 +525,6 @@ class Paint {
             //     inputID.destroy();
             // }
         }
-        // inputID = undefined;
-        // this.renderObject(processingData.allObject);
-        // else {
-        //     if (inputID !== undefined) {
-        //         inputID.destroy();
-        //     }
-        //     inputID = undefined;
-        //     this.renderObject(processingData.allObject);
-        // }
     }
 
     addValueNameLine() {
@@ -553,16 +548,6 @@ class Paint {
             //     inputID.destroy();
             // }
         }
-        // else {
-        //     if (inputID !== undefined) {
-        //         inputID.destroy();
-        //     }
-        //     inputID = undefined;
-        //     this.renderObject(processingData.allObject);
-        // }
-        // console.log(this.currentValue.value)
-        // inputID = undefined;
-        // this.renderObject(processingData.allObject);
     }
 
     addValueNameArea() {
@@ -586,16 +571,6 @@ class Paint {
             //     inputID.destroy();
             // }
         }
-        // else {
-        //     if (inputID !== undefined) {
-        //         inputID.destroy();
-        //     }
-        //     inputID = undefined;
-        //     this.renderObject(processingData.allObject);
-        // }
-        // console.log(this.currentValue.value)
-        // inputID = undefined;
-        // this.renderObject(processingData.allObject);
     }
 
     listenEvent() {
@@ -613,6 +588,12 @@ class Paint {
             }
             fr.readAsText(this.files[0]);
         });
+        //make canvas responsive
+        onresize = (event) => {
+            PaintIn.canvas.width = document.getElementById("drawing_page").clientWidth;
+            PaintIn.canvas.height = document.getElementById("drawing_page").clientHeight;
+            PaintIn.renderObject(processingData.allObject);
+        }
     }
 
     getMousePosition(event) {
@@ -707,62 +688,79 @@ class Paint {
         };
 
         //Load in Point
-        if (this.curValPointLoad.value === "On") {
-            //normal last multicurrent obj
-            this.renderObject(processingData.allObject);
-            //turn off multi mode
-            this.arrMultiCurObj = [];
-            //trace obj
-            for (let Obj of processingData.allObject) {
-                if (Obj instanceof Point) {
-                    if (Obj.isInPoint([this.currentPos.x, this.currentPos.y])) {
-                        //check before
-                        if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(Obj)) {
-                            this.renderProperty("off", Obj);
-                            this.arrCurObj = [];
-                        } else {
-                            this.arrCurObj[0] = Obj;
-                            this.renderProperty("point", Obj);
-                            this.drawPoint(Obj, "green");
-                            if (this.curValPointLoad.value === "On") {
-                                this.drawForceInPoint(Obj);
+
+        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On") {
+            if (inputID === undefined) {
+                //normal last multicurrent obj
+                this.renderObject(processingData.allObject);
+                //trace obj
+                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+                this.arrCurObj[0] = selectedObj;
+                if (selectedObj === undefined) {
+                    this.renderProperty("off", selectedObj);
+                    this.arrCurObj = [];
+                    return;
+                }
+                //render Prop
+                switch (selectedObj.className) {
+                    case "Point":
+                        if (this.curValPointLoad.value === "On") {
+                            this.renderProperty("point", selectedObj);
+                            this.drawPoint(selectedObj, "green");
+                            if (inputID === undefined) {
+                                this.drawForceInPoint(selectedObj);
                             }
                         }
-
-                    }
-                }
-            }
-
-        }
-
-        if (this.curValPressLoad.value === "On") {
-            //normal last multicurrent obj
-            this.renderObject(processingData.allObject);
-            //turn off multi mode
-            this.arrMultiCurObj = [];
-            //trace obj
-            for (let Obj of processingData.allObject) {
-                if (Obj instanceof Line) {
-                    if (Obj.isInLine([this.currentPos.x, this.currentPos.y])) {
-                        //check before
-                        if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(Obj)) {
-                            this.renderProperty("off", Obj);
-                            this.arrCurObj = [];
-                        } else {
-                            this.arrCurObj[0] = Obj;
-                            this.renderProperty("line", Obj);
-                            this.drawLine(Obj.Point[0], Obj.Point[1], "#0000ff", Obj.width);
-                            if (this.curValPressLoad.value === "On") {
-                                this.drawForceInLine(Obj);
+                    case "Line":
+                        if (this.curValPressLoad.value === "On") {
+                            this.renderProperty("line", selectedObj);
+                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                            if (inputID === undefined) {
+                                this.drawForceInLine(selectedObj);
                             }
                         }
-
-                    }
+                        break;
                 }
             }
-
+            return
         }
 
+        //addName
+        if (this.pen === "select" && (this.curValNameLine.value === "On" || this.curValNamePoint.value === "On")) {
+            if (inputID === undefined) {
+                //normal last multicurrent obj
+                this.renderObject(processingData.allObject);
+                //trace obj
+                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+                this.arrCurObj[0] = selectedObj;
+                if (selectedObj === undefined) {
+                    this.renderProperty("off", selectedObj);
+                    this.arrCurObj = [];
+                    return;
+                }
+                //render Prop
+                switch (selectedObj.className) {
+                    case "Point":
+                        if (this.curValNamePoint.value === "On") {
+                            this.renderProperty("point", selectedObj);
+                            this.drawPoint(selectedObj, "green");
+                            if (inputID === undefined) {
+                                this.addNamePoint(selectedObj);
+                            }
+                        }
+                    case "Line":
+                        if (this.curValNameLine.value === "On") {
+                            this.renderProperty("line", selectedObj);
+                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                            if (inputID === undefined) {
+                                this.addNameLine(selectedObj);
+                            }
+                        }
+                        break;
+                }
+            }
+            return
+        }
         //select
         if (this.pen === "select") {
             if (window.event.ctrlKey) {
@@ -777,64 +775,44 @@ class Paint {
                 //turn off single mode
                 this.arrCurObj = [];
                 //trace obj
-                for (let Obj of processingData.allObject) {
-                    if (Obj instanceof Point) {
-                        if (Obj.isInPoint([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrMultiCurObj).indexOf(JSON.stringify(Obj)) !== -1) {
-                                this.arrMultiCurObj.splice(this.arrMultiCurObj.indexOf(Obj), 1);
-                                this.drawPoint(Obj);
-                            } else { //add
-                                this.arrMultiCurObj.push(Obj);
-                                this.drawPoint(Obj, "green");
-                            }
-                            //render property
-                            if (this.arrMultiCurObj.length !== 0) {
-                                this.renderProperty("multi", this.arrMultiCurObj);
-                            } else {
-                                this.renderProperty("off", this.arrMultiCurObj);
-                            }
-                            return
-                        }
-                    } else if (Obj instanceof Line) {
-                        if (Obj.isInLine([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrMultiCurObj).indexOf(JSON.stringify(Obj)) !== -1) {
-                                this.arrMultiCurObj.splice(this.arrMultiCurObj.indexOf(Obj), 1);
-                                this.drawLine(Obj.Point[0], Obj.Point[1], Obj.color, Obj.width);
-                            } else { //add
-                                this.arrMultiCurObj.push(Obj);
-                                this.drawLine(Obj.Point[0], Obj.Point[1], "#0000ff");
-                            }
-                            //render property
-                            if (this.arrMultiCurObj.length !== 0) {
-                                this.renderProperty("multi", this.arrMultiCurObj);
-
-                            } else {
-                                this.renderProperty("off", this.arrMultiCurObj);
-                            }
-                            return
-                        }
-                    } else if (Obj instanceof Area) {
-                        if (Obj.isInArea([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrMultiCurObj).indexOf(JSON.stringify(Obj)) !== -1) {
-                                this.arrMultiCurObj.splice(this.arrMultiCurObj.indexOf(Obj), 1);
-                                this.fillArea(Obj);
-                            } else { //add
-                                this.arrMultiCurObj.push(Obj);
-                                this.fillArea(Obj, "#b6d8e7");
-                            };
-                            //render property
-                            if (this.arrMultiCurObj.length !== 0) {
-                                this.renderProperty("multi", this.arrMultiCurObj);
-                            } else {
-                                this.renderProperty("off", this.arrMultiCurObj);
-                            }
-                            return
-                        }
+                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+                if (selectedObj === undefined) return;
+                if (this.arrMultiCurObj.indexOf(selectedObj) !== -1) {
+                    this.arrMultiCurObj.splice(this.arrMultiCurObj.indexOf(selectedObj), 1);
+                    switch (selectedObj.className) {
+                        case "Point":
+                            this.drawPoint(selectedObj);
+                            break
+                        case "Line":
+                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], selectedObj.color, selectedObj.width);
+                            break;
+                        case "Area":
+                            this.fillArea(selectedObj);
+                            break;
                     }
-
+                } else {//add
+                    this.arrMultiCurObj.push(selectedObj);
+                    //highlight obj
+                    switch (selectedObj.className) {
+                        case "Point":
+                            this.drawPoint(selectedObj, "green");
+                            //
+                            break
+                        case "Line":
+                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                            //
+                            break;
+                        case "Area":
+                            this.fillArea(selectedObj, "#b6d8e7");
+                            //
+                            break;
+                    }
+                }
+                //render prop
+                if (this.arrMultiCurObj.length !== 0) {
+                    this.renderProperty("multi", this.arrMultiCurObj);
+                } else {
+                    this.renderProperty("off", this.arrMultiCurObj);
                 }
             } else {
                 //normal last multicurrent obj
@@ -842,64 +820,49 @@ class Paint {
                 //turn off multi mode
                 this.arrMultiCurObj = [];
                 //trace obj
-                for (let Obj of processingData.allObject) {
-                    if (Obj instanceof Point) {
-                        if (Obj.isInPoint([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(Obj)) {
-                                this.renderProperty("off", Obj);
-                                this.arrCurObj = [];
-                            } else {
-                                this.arrCurObj[0] = Obj;
-                                this.renderProperty("point", Obj);
-                                this.drawPoint(Obj, "green");
-                                if (this.curValNamePoint.value === "On") {
-                                    this.addNamePoint(Obj);
-                                    // return
-                                }
-                                else if (this.curValPointLoad.value === "On") {
-                                    this.drawForceInPoint(Obj);
-                                }
+                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+                if (selectedObj === undefined) {
+                    this.renderProperty("off", selectedObj);
+                    this.arrCurObj = [];
+                    return;
+                }
+                if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(selectedObj)) {
+                    this.renderProperty("off", selectedObj);
+                    this.arrCurObj = [];
+                } else {
+                    this.arrCurObj[0] = selectedObj;
+                    //render Prop
+                    switch (selectedObj.className) {
+                        case "Point":
+                            this.renderProperty("point", selectedObj);
+                            this.drawPoint(selectedObj, "green");
+                            //
+                            // if (this.curValNamePoint.value === "On") {
+                            //     if (inputID !== undefined && inputID.value() === '') {
+                            //         inputID.destroy();
+                            //     }
+                            //     this.addNamePoint(selectedObj);
+                            // }
+                            break
+                        case "Line":
+                            this.renderProperty("line", selectedObj);
+                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                            //
+                            // if (this.curValNameLine.value === "On") {
+                            //     if (inputID !== undefined && inputID.value() === '') {
+                            //         inputID.destroy();
+                            //     }
+                            //     this.addNameLine(selectedObj);
+                            // }
+                            break;
+                        case "Area":
+                            this.renderProperty("area", selectedObj);
+                            this.fillArea(selectedObj, "#b6d8e7");
+                            //
+                            if (this.curValNameArea.value === "On") {
+                                this.addNameArea(selectedObj);
                             }
-
-                        }
-                    } else if (Obj instanceof Line) {
-                        if (Obj.isInLine([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(Obj)) {
-                                this.renderProperty("off", Obj);
-                                this.arrCurObj = [];
-                            } else {
-                                this.arrCurObj[0] = Obj;
-                                this.renderProperty("line", Obj);
-                                this.drawLine(Obj.Point[0], Obj.Point[1], "#0000ff", Obj.width);
-
-                                if (this.curValNameLine.value === "On") {
-                                    this.addNameLine(Obj);
-                                    // return
-                                }
-                                else if (this.curValPressLoad.value === "On") {
-                                    this.drawForceInLine(Obj);
-                                }
-                            }
-
-                        }
-                    } else if (Obj instanceof Area) {
-                        if (Obj.isInArea([this.currentPos.x, this.currentPos.y])) {
-                            //check before
-                            if (JSON.stringify(this.arrCurObj[0]) === JSON.stringify(Obj)) {
-                                this.renderProperty("off", Obj);
-                                this.fillArea(Obj)
-                                this.arrCurObj = [];
-                            } else {
-                                this.arrCurObj[0] = Obj;
-                                this.renderProperty("area", Obj);
-                                this.fillArea(Obj, "#b6d8e7");
-                                if (this.curValNameArea.value === "On") {
-                                    this.addNameArea(Obj);
-                                }
-                            }
-                        }
+                            break;
                     }
                 }
             }
@@ -1102,7 +1065,7 @@ class Paint {
     mouseMove(event) {
         let mouseMovePos = this.getMousePosition(event);
         this.currentMouseMovePos = this.getMousePosition(event);
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On" || this.curValPointLoad.value === "On"|| this.curValPressLoad.value === "On") {
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On") {
             //display coord
             document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
             //
@@ -1296,9 +1259,12 @@ class Paint {
     }
 
     drawForceInPoint(Obj, color = "#063970", lineWidth = 1) {
-        //get vecto u of Line
-        let endPointX = { x: Obj.x + 35, y: Obj.y }; // parallel Ox
-        let endPointY = { x: Obj.x, y: Obj.y + 35 }; // parallel Oy
+        //alpha = input;
+        //get vecto u of Line 
+        // inputName(Obj.x, Obj.y, Obj);
+        // let alpha = Obj.name;
+        let endPointX = { x: Obj.x + 35, y: Obj.y }; // parallel Ox u = {x:1, y:0}
+        let endPointY = { x: Obj.x, y: Obj.y + 35 }; // parallel Oy u = {x:0, y:1}
         this.drawForce(Obj.x, Obj.y, endPointX.x, endPointX.y, color, lineWidth);
         this.drawForce(Obj.x, Obj.y, endPointY.x, endPointY.y, color, lineWidth);
         Obj.force = true;
@@ -1567,7 +1533,7 @@ class Paint {
             let point1 = math.add(AreaObj.PointFlow[i], math.multiply(vectn, 10e-5));
             let point2 = math.add(AreaObj.PointFlow[i + 1], math.multiply(vectn, 10e-5))
             let center = math.add(point1, math.divide(math.subtract(point2, point1), 2));
-            if (AreaObj.isInArea(center)) {
+            if (AreaObj.isIn(center)) {
                 allVectn.push(vectn);
             } else {
                 vectn = [vectu[1], -vectu[0]];
