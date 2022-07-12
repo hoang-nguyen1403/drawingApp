@@ -208,8 +208,7 @@ class Paint {
                 }
 
             };
-
-            // off highlight Object
+            this.renderProperty("off", "");
             this.renderObject(processingData.allObject);
         }
 
@@ -688,9 +687,8 @@ class Paint {
         };
 
         //Load in Point
-
         if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On") {
-            if (inputID === undefined) {
+            if (inputLoad === undefined) {
                 //normal last multicurrent obj
                 this.renderObject(processingData.allObject);
                 //trace obj
@@ -707,16 +705,22 @@ class Paint {
                         if (this.curValPointLoad.value === "On") {
                             this.renderProperty("point", selectedObj);
                             this.drawPoint(selectedObj, "green");
-                            if (inputID === undefined) {
-                                this.drawForceInPoint(selectedObj);
+                            if (inputLoad === undefined) {
+                                inputForce(selectedObj.x, selectedObj.y, selectedObj);
                             }
                         }
                     case "Line":
                         if (this.curValPressLoad.value === "On") {
                             this.renderProperty("line", selectedObj);
                             this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
-                            if (inputID === undefined) {
-                                this.drawForceInLine(selectedObj);
+                            if (inputLoad === undefined) {
+                                let xM1 = (selectedObj.Point[1].x - selectedObj.Point[0].x) / 2;
+                                let yM1 = (selectedObj.Point[1].y - selectedObj.Point[0].y) / 2;
+                                let xBox = 25 / 2;
+                                let yBox = 25 / 2;
+                                let xM2 = (selectedObj.Point[0].x + xM1) - xBox;
+                                let yM2 = (selectedObj.Point[0].y + yM1) - yBox;
+                                inputForce(xM2, yM2, selectedObj);
                             }
                         }
                         break;
@@ -726,7 +730,7 @@ class Paint {
         }
 
         //addName
-        if (this.pen === "select" && (this.curValNameLine.value === "On" || this.curValNamePoint.value === "On")) {
+        if (this.pen === "select" && (this.curValNameLine.value === "On" || this.curValNamePoint.value === "On" || this.curValNameArea.value === "On")) {
             if (inputID === undefined) {
                 //normal last multicurrent obj
                 this.renderObject(processingData.allObject);
@@ -754,6 +758,15 @@ class Paint {
                             this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
                             if (inputID === undefined) {
                                 this.addNameLine(selectedObj);
+                            }
+                        }
+                        break;
+                    case "Area":
+                        if (this.curValNameArea.value === "On") {
+                            this.renderProperty("Area", selectedObj);
+                            this.fillArea(selectedObj, "#b6d8e7");
+                            if (inputID === undefined) {
+                                this.addNameArea(selectedObj);
                             }
                         }
                         break;
@@ -1261,22 +1274,24 @@ class Paint {
     drawForceInPoint(Obj, color = "#063970", lineWidth = 1) {
         //alpha = input;
         //get vecto u of Line 
-        // inputName(Obj.x, Obj.y, Obj);
-        // let alpha = Obj.name;
+        if (inputLoad !== undefined) {
+            Obj.force = inputLoad.value();
+        }
         let endPointX = { x: Obj.x + 35, y: Obj.y }; // parallel Ox u = {x:1, y:0}
         let endPointY = { x: Obj.x, y: Obj.y + 35 }; // parallel Oy u = {x:0, y:1}
         this.drawForce(Obj.x, Obj.y, endPointX.x, endPointX.y, color, lineWidth);
         this.drawForce(Obj.x, Obj.y, endPointY.x, endPointY.y, color, lineWidth);
-        Obj.force = true;
     }
 
     drawForceInLine(Obj, color = "red", lineWidth = 1) {
+        if (inputLoad !== undefined) {
+            Obj.force = inputLoad.value();
+        }
         let startPoint = this.getPointInLine(Obj.Point[0], Obj.Point[1], Obj.length);
         for (let i = 0; i < startPoint.length; i++) {
             let endPoint = this.getPoint2ndOfForceVector(Obj.Point[0], Obj.Point[1], startPoint[i]);
             this.drawForce(startPoint[i].x, startPoint[i].y, endPoint.x, endPoint.y, color, lineWidth);
         }
-        Obj.force = true;
     }
 
     addNode() {
@@ -1364,7 +1379,6 @@ class Paint {
                     arrObj[i].Point[1], arrObj[i].color, arrObj[i].width);
                 if (arrObj[i].name !== undefined) {
                     this.drawText(arrObj[i], arrObj[i].name);
-
                 }
                 if (arrObj[i].force !== undefined) {
                     this.drawForceInLine(arrObj[i]);
