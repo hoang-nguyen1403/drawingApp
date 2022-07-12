@@ -117,7 +117,7 @@ class processingData {
             }
         };
         if ((math.round(T[0][0], 10) <= 1 && math.round(T[0][0], 10) >= 0) &&
-         (math.round(T[1][0], 10) >= 0 && math.round(T[1][0], 10) <= 1)) {
+            (math.round(T[1][0], 10) >= 0 && math.round(T[1][0], 10) <= 1)) {
             var Point1x = x1 + (x2 - x1) * T[0][0];
             var Point1y = y1 + (y2 - y1) * T[0][0];
             return {
@@ -216,9 +216,9 @@ class processingData {
                     arrSubLineY.push(arrIntersPoint[index][1]);
                     //
                 }
-                processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined, 
-                Array(arrSubLineX.length).fill(Line_List_copy[i].name), Array(arrSubLineX.length).fill(Line_List_copy[i].color), 
-                Array(arrSubLineX.length).fill(Line_List_copy[i].width), undefined, Array(arrSubLineX.length).fill(Line_List_copy[i].force));
+                processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined,
+                    Array(arrSubLineX.length).fill(Line_List_copy[i].name), Array(arrSubLineX.length).fill(Line_List_copy[i].color),
+                    Array(arrSubLineX.length).fill(Line_List_copy[i].width), undefined, Array(arrSubLineX.length).fill(Line_List_copy[i].force));
             }
 
         }
@@ -601,11 +601,37 @@ function inputName(x, y, obj) {
             this.destroy();
             inputID = undefined;
             PaintIn.renderObject(processingData.allObject);
-            PaintIn.arrCurObj =[];
+            PaintIn.arrCurObj = [];
         },
     });
+};
 
-    
+var inputLoad;
+
+function inputForce(x, y, obj) {
+    inputLoad = new CanvasInput({
+        canvas: document.getElementById('myCanvas'),
+        x: x,
+        y: y,
+        fontSize: 18,
+        fontFamily: 'Arial',
+        fontColor: '#212121',
+        fontWeight: 'bold',
+        width: 25,
+        height: 25,
+        padding: 0,
+        borderColor: '#000',
+        borderRadius: 3,
+
+        onsubmit: function () {
+            // PaintIn.drawText(obj, this.value());
+            obj.force = this.value();
+            this.destroy();
+            inputLoad = undefined;
+            PaintIn.renderObject(processingData.allObject);
+            PaintIn.arrCurObj = [];
+        },
+    });
 };
 
 
