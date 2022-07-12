@@ -56,7 +56,7 @@ class processingData {
             widthList = Array(Arr1.length - 1).fill(undefined);
         }
         if (arrForcePoint === undefined) {
-            arrForcePoint = Array(Arr1.length).fill(undefined);
+            arrForcePoint = Array(Arr1.length - 1).fill(undefined);
         }
         if (arrForceLine === undefined) {
             arrForceLine = Array(Arr1.length - 1).fill(undefined);
@@ -482,7 +482,7 @@ class Point {
 
 // Line class
 class Line {
-    constructor(Point1, Point2, lineName, lineColor, lineWidth, force) {
+    constructor(Point1, Point2, lineName, lineColor, lineWidth, force, lucDoc) {
         this.Point = [Point1, Point2];
         //
         this.length = math.norm(math.subtract(Point1.point, Point2.point))
@@ -491,6 +491,7 @@ class Line {
         this.className = "Line";
         this.name = lineName;
         this.force = force;
+        this.lucDoc = lucDoc;
     }
     //Method
     isIn(Mouse) {
@@ -625,7 +626,15 @@ function inputForce(x, y, obj) {
 
         onsubmit: function () {
             // PaintIn.drawText(obj, this.value());
-            obj.force = this.value();
+            if (PaintIn.curValPressLoad.value === "On") {
+                obj.force = this.value();
+                let Fx = Number((obj.force).slice(0, obj.force.indexOf(',')));
+                let Fy = Number((obj.force).slice(obj.force.indexOf(',') + 1, (obj.force).length));
+                console.log(Fx,Fy)
+            }
+            else if (PaintIn.curValLucDoc.value === "On") {
+                obj.lucDoc = this.value();
+            }
             this.destroy();
             inputLoad = undefined;
             PaintIn.renderObject(processingData.allObject);
