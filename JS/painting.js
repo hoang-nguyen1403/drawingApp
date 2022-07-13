@@ -10,15 +10,12 @@ class Paint {
         this.currentValueRect = document.getElementById('rect');
         this.currentValueSpl = document.getElementById('spl');
         this.currentValueSelect = document.getElementById('select');
-        this.currentValueDetectArea = document.getElementById('areaDetect');
 
-        this.curValNamePoint = document.getElementById('valueNamePoint');
-        this.curValNameLine = document.getElementById('valueNameLine');
-        this.curValNameArea = document.getElementById('valueNameArea');
+        this.curValName = document.getElementById('valueName');
 
         this.curValPointLoad = document.getElementById('pointLoad');
         this.curValPressLoad = document.getElementById('pressLoad');
-        this.curValLucDoc = document.getElementById('lucDoc');
+        this.curValMoment = document.getElementById('moment');
 
         this.ctx = this.canvas.getContext("2d");
 
@@ -145,35 +142,24 @@ class Paint {
             this.isCancled = false;
             if (this.pen === 'line') {
                 this.undo();
-            };
-            if (this.currentValueDetectArea.value === "On") {
-                try {
-                    processingData.prototype.areaDetect(processingData.allLine);
-                    console.log("detect")
-                }
-                catch (error) {
-                    //save obj
-                    this.renderObject(processingData.allObject);
-                    console.log("error")
-                }
-
+                processingData.prototype.areaDetect(processingData.allLine);
             };
         }
         //ESC
         if (event.keyCode === 27) {
             this.isCancled = false;
-            this.offButtonDraw(this.currentValueBrush, "brush");
-            this.offButtonDraw(this.currentValueLine, "line");
-            this.offButtonDraw(this.currentValueRect, "rect");
-            this.offButtonDraw(this.currentValueCircle, "circle");
-            this.offButtonDraw(this.currentValueSpl, "spl");
-            // this.offButtonDraw(this.currentValueBrush, "valueName");
+            // this.offButtonDraw(this.currentValueBrush, "brush");
+            // this.offButtonDraw(this.currentValueLine, "line");
+            // this.offButtonDraw(this.currentValueRect, "rect");
+            // this.offButtonDraw(this.currentValueCircle, "circle");
+            // this.offButtonDraw(this.currentValueSpl, "spl");
+            this.offButton(this.curValName, "valueName");
             if (this.currentValueSelect.value === "On") {
                 this.pen = "select";
             }
-            else {
-                this.pen = '';
-            }
+            // else {
+            //     this.pen = '';
+            // }
             this.arr = [];
             this.arrLineX = [];
             this.arrLineY = [];
@@ -186,7 +172,7 @@ class Paint {
 
             //destroy box input
 
-            if (this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On") {
+            if (this.curValName.value === "On") {
                 try {
                     inputID.destroy();
                     this.arrCurObj = [];
@@ -197,7 +183,7 @@ class Paint {
                 }
             }
 
-            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValLucDoc.value === "On") {
+            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
                 try {
                     inputLoad.destroy();
                     this.arrCurObj = [];
@@ -208,18 +194,10 @@ class Paint {
                 }
             }
 
-            if (this.currentValueDetectArea.value === "On") {
-                try {
-                    processingData.prototype.areaDetect(processingData.allLine);
-                    console.log("detect")
-                }
-                catch (error) {
-                    //save obj
-                    this.renderObject(processingData.allObject);
-                    console.log("error")
-                }
+            if (this.currentValueLine.value === "On") {
+                processingData.prototype.areaDetect(processingData.allLine);
+            }
 
-            };
             this.renderProperty("off", "");
             this.renderObject(processingData.allObject);
         }
@@ -229,20 +207,12 @@ class Paint {
             if (this.currentValueGrid.value == "On" && this.deltaGrid <= this.maxGrid) {
                 this.deltaGrid += this.deltaGrid / 2;
 
-                // function update object saved
-                //redraw object
                 this.renderObject(processingData.allLine);
 
                 this.arrGrid = [];
-                // this.addNode();
                 this.getNodePos();
-                // console.log(this.arrGrid.length)
-                // console.log(this.arrRecordNode.length)
                 this.arrRecordNode = this.removeDuplicates(this.arrRecordNode);
-                // console.log(this.arrRecordNode.length)
                 this.arrGrid = this.concatArr(this.arrGrid, this.arrRecordNode);
-                // console.log(this.arrGrid.length)
-
                 this.ctx.strokeStyle = 'grey';
                 this.drawGrid();
 
@@ -252,19 +222,12 @@ class Paint {
         if (event.keyCode === 40) {
             if (this.currentValueGrid.value == "On" && this.deltaGrid >= this.minGrid * 2) {
                 this.deltaGrid -= this.deltaGrid / 2;
-
-                // function update object saved
-                //redraw object
                 this.renderObject(processingData.allLine);
 
                 this.arrGrid = [];
-                // this.addNode();
                 this.getNodePos();
-                // console.log(this.arrGrid.length)
-                // console.log(this.arrRecordNode.length)
                 this.arrRecordNode = this.removeDuplicates(this.arrRecordNode);
                 this.arrGrid = this.concatArr(this.arrGrid, this.arrRecordNode);
-                // console.log(this.arrGrid.length)
 
                 this.ctx.strokeStyle = 'grey';
                 this.drawGrid();
@@ -299,103 +262,91 @@ class Paint {
         return arr1.concat(arr2);
     }
 
-    chooseBrush() {
-        this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueSelect, "select");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButtonDraw(this.currentValueRect, "rect");
+    // chooseBrush() {
+    //     this.offButtonDraw(this.currentValueLine, "line");
+    //     this.offButtonDraw(this.currentValueSelect, "select");
+    //     // this.offButtonDraw(this.currentValueSpl, "spl");
+    //     // this.offButtonDraw(this.currentValueCircle, "circle");
+    //     // this.offButtonDraw(this.currentValueRect, "rect");
 
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
-        this.onOffButtonDraw(this.currentValueBrush, "brush");
-    }
+    //     this.offButton(this.curValName, "valueName");
+    //     this.offButton(this.curValPointLoad, "pointLoad");
+    //     this.offButton(this.curValPressLoad, "pressLoad");
+    //     // this.onOffButtonDraw(this.currentValueBrush, "brush");
+    // }
 
     chooseLine() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueBrush, "brush");
         this.offButtonDraw(this.currentValueSelect, "select");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButtonDraw(this.currentValueRect, "rect");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButtonDraw(this.currentValueRect, "rect");
 
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
+        this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
         this.onOffButtonDraw(this.currentValueLine, "line");
     }
 
-    chooseCircle() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSelect, "select");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueRect, "rect");
+    // chooseCircle() {
+    //     this.offButtonDraw(this.currentValueBrush, "brush");
+    //     this.offButtonDraw(this.currentValueSelect, "select");
+    //     this.offButtonDraw(this.currentValueSpl, "spl");
+    //     this.offButtonDraw(this.currentValueLine, "line");
+    //     this.offButtonDraw(this.currentValueRect, "rect");
 
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
+    //     this.offButton(this.curValNamePoint, "valueNamePoint");
+    //     this.offButton(this.curValNameLine, "valueNameLine");
+    //     this.offButton(this.curValNameArea, "valueNameArea");
+    //     this.offButton(this.curValPointLoad, "pointLoad");
+    //     this.offButton(this.curValPressLoad, "pressLoad");
 
-        this.onOffButtonDraw(this.currentValueCircle, "circle");
-    }
+    //     this.onOffButtonDraw(this.currentValueCircle, "circle");
+    // }
 
-    chooseRect() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSelect, "select");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+    // chooseRect() {
+    //     this.offButtonDraw(this.currentValueBrush, "brush");
+    //     this.offButtonDraw(this.currentValueSelect, "select");
+    //     this.offButtonDraw(this.currentValueSpl, "spl");
+    //     this.offButtonDraw(this.currentValueLine, "line");
+    //     this.offButtonDraw(this.currentValueCircle, "circle");
 
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
+    //     this.offButton(this.curValNamePoint, "valueNamePoint");
+    //     this.offButton(this.curValNameLine, "valueNameLine");
+    //     this.offButton(this.curValNameArea, "valueNameArea");
+    //     this.offButton(this.curValPointLoad, "pointLoad");
+    //     this.offButton(this.curValPressLoad, "pressLoad");
 
-        this.onOffButtonDraw(this.currentValueRect, "rect");
-    }
+    //     this.onOffButtonDraw(this.currentValueRect, "rect");
+    // }
 
-    chooseSpl() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSelect, "select");
-        this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+    // chooseSpl() {
+    //     this.offButtonDraw(this.currentValueBrush, "brush");
+    //     this.offButtonDraw(this.currentValueSelect, "select");
+    //     this.offButtonDraw(this.currentValueRect, "rect");
+    //     this.offButtonDraw(this.currentValueLine, "line");
+    //     this.offButtonDraw(this.currentValueCircle, "circle");
 
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
-        this.onOffButtonDraw(this.currentValueSpl, "spl");
-    }
+    //     this.offButton(this.curValNamePoint, "valueNamePoint");
+    //     this.offButton(this.curValNameLine, "valueNameLine");
+    //     this.offButton(this.curValNameArea, "valueNameArea");
+    //     this.offButton(this.curValPointLoad, "pointLoad");
+    //     this.offButton(this.curValPressLoad, "pressLoad");
+    //     this.onOffButtonDraw(this.currentValueSpl, "spl");
+    // }
     chooseSelect() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueRect, "rect");
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
         this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
 
         this.onOffButtonDraw(this.currentValueSelect, "select");
 
         if (this.currentValueSelect.value == "Off") {
-            this.offButton(this.curValNamePoint, "valueNamePoint");
-            this.offButton(this.curValNameLine, "valueNameLine");
-            this.offButton(this.curValNameArea, "valueNameArea");
+            this.offButton(this.curValName, "valueName");
 
         }
     }
@@ -475,28 +426,14 @@ class Paint {
         this.renderObject(processingData.allObject);
     }
 
-    buttonDetectArea() {
-        if (this.currentValueDetectArea.value === "Off") {
-            this.currentValueDetectArea.value = "On";
-            document.getElementById("areaDetect").classList.add("active");
-            processingData.prototype.areaDetect(processingData.allLine);
-        }
-        else {
-            this.currentValueDetectArea.value = "Off";
-            document.getElementById("areaDetect").classList.remove("active");
-        };
-    }
-
     addPointLoad() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueRect, "rect");
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
         this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
         this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
+        this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPressLoad, "pressLoad");
 
         this.onOffButton(this.curValPointLoad, "pointLoad");
@@ -505,108 +442,51 @@ class Paint {
     }
 
     addPressLoad() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueRect, "rect");
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
         this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
         this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
+        this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValLucDoc, "lucDoc");
 
         this.onOffButton(this.curValPressLoad, "pressLoad");
 
         this.renderObject(processingData.allObject);
     }
 
-    addLucDoc() {
-        this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSpl, "spl");
-        this.offButtonDraw(this.currentValueRect, "rect");
+    addMoment() {
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
         this.offButtonDraw(this.currentValueLine, "line");
-        this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
         this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValNamePoint, "valueNamePoint");
-        this.offButton(this.curValNameLine, "valueNameLine");
-        this.offButton(this.curValNameArea, "valueNameArea");
+        this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
 
-        this.onOffButton(this.curValLucDoc, "lucDoc");
+        this.onOffButton(this.curValMoment, "moment");
 
         this.renderObject(processingData.allObject);
     }
 
     //ID
-    addValueNamePoint() {
+    addValueName() {
         if (this.currentValueSelect.value === "On") {
-            this.offButtonDraw(this.currentValueBrush, "brush");
-            this.offButtonDraw(this.currentValueSpl, "spl");
-            this.offButtonDraw(this.currentValueRect, "rect");
+            // this.offButtonDraw(this.currentValueBrush, "brush");
+            // this.offButtonDraw(this.currentValueSpl, "spl");
+            // this.offButtonDraw(this.currentValueRect, "rect");
             this.offButtonDraw(this.currentValueLine, "line");
-            this.offButtonDraw(this.currentValueCircle, "circle");
+            // this.offButtonDraw(this.currentValueCircle, "circle");
 
-            this.onOffButton(this.curValLucDoc, "lucDoc");
+            this.onOffButton(this.curValName, "valueName");
 
-            if (this.curValNamePoint.value === "On") {
-                this.offButton(this.curValNameLine, "valueNameLine");
-                this.offButton(this.curValNameArea, "valueNameArea");
+            if (this.curValName.value === "On") {
                 this.offButton(this.curValPointLoad, "pointLoad");
                 this.offButton(this.curValPressLoad, "pressLoad");
-                this.offButton(this.curValNamePoint, "valueNamePoint");
             }
-            // if (inputID !== undefined) {
-            //     inputID.destroy();
-            // }
-        }
-    }
-
-    addValueNameLine() {
-        if (this.currentValueSelect.value === "On") {
-            this.offButtonDraw(this.currentValueBrush, "brush");
-            this.offButtonDraw(this.currentValueSpl, "spl");
-            this.offButtonDraw(this.currentValueRect, "rect");
-            this.offButtonDraw(this.currentValueLine, "line");
-            this.offButtonDraw(this.currentValueCircle, "circle");
-
-            this.onOffButton(this.curValNameLine, "valueNameLine");
-
-            if (this.curValNameLine.value === "On") {
-                this.offButton(this.curValNamePoint, "valueNamePoint");
-                this.offButton(this.curValNameArea, "valueNameArea");
-                this.offButton(this.curValPointLoad, "pointLoad");
-                this.offButton(this.curValPressLoad, "pressLoad");
-                this.offButton(this.curValLucDoc, "lucDoc");
-            }
-
-            // if (inputID !== undefined) {
-            //     inputID.destroy();
-            // }
-        }
-    }
-
-    addValueNameArea() {
-        if (this.currentValueSelect.value === "On") {
-            this.offButtonDraw(this.currentValueBrush, "brush");
-            this.offButtonDraw(this.currentValueSpl, "spl");
-            this.offButtonDraw(this.currentValueRect, "rect");
-            this.offButtonDraw(this.currentValueLine, "line");
-            this.offButtonDraw(this.currentValueCircle, "circle");
-
-            this.onOffButton(this.curValNameArea, "valueNameArea");
-
-
-            if (this.curValNameArea.value === "On") {
-                this.offButton(this.curValNamePoint, "valueNamePoint");
-                this.offButton(this.curValNameLine, "valueNameLine");
-                this.offButton(this.curValPointLoad, "pointLoad");
-                this.offButton(this.curValPressLoad, "pressLoad");
-                this.offButton(this.curValLucDoc, "lucDoc");
-            }
-
             // if (inputID !== undefined) {
             //     inputID.destroy();
             // }
@@ -638,7 +518,7 @@ class Paint {
 
     getMousePosition(event) {
         let rect = this.canvas.getBoundingClientRect();
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValLucDoc.value === "On") {
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
             return {
                 x: (event.clientX - rect.left),
                 y: (event.clientY - rect.top)
@@ -669,30 +549,30 @@ class Paint {
                 this.arrLineWidth.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
                 // console.log('arrLine', this.arrLineX)
             };
-            if (this.pen === 'circle') {
-                this.arrCircleX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
-                this.arrCircleY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-                for (let i = 1; i < this.arr.length; i += 2) {
-                    this.mouseDownPos = this.arr[i + 1];
-                }
-                // console.log('arrCircle', this.arrCircleX)
-            };
+            // if (this.pen === 'circle') {
+            //     this.arrCircleX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
+            //     this.arrCircleY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
+            //     for (let i = 1; i < this.arr.length; i += 2) {
+            //         this.mouseDownPos = this.arr[i + 1];
+            //     }
+            //     // console.log('arrCircle', this.arrCircleX)
+            // };
 
-            if (this.pen === 'rect') {
-                this.arrRectX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
-                this.arrRectY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-                for (let i = 1; i < this.arr.length; i += 2) {
-                    this.mouseDownPos = this.arr[i + 1];
-                }
-                this.arrRectColor = this.arrRect;
-                // console.log('arrRect', this.arrRectX)
-            };
+            // if (this.pen === 'rect') {
+            //     this.arrRectX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
+            //     this.arrRectY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
+            //     for (let i = 1; i < this.arr.length; i += 2) {
+            //         this.mouseDownPos = this.arr[i + 1];
+            //     }
+            //     this.arrRectColor = this.arrRect;
+            //     // console.log('arrRect', this.arrRectX)
+            // };
 
-            if (this.pen === 'spl') {
-                this.arrSPLX.push(this.mouseDownPos.x);
-                this.arrSPLY.push(this.mouseDownPos.y);
-                this.drawSPLine();
-            };
+            // if (this.pen === 'spl') {
+            //     this.arrSPLX.push(this.mouseDownPos.x);
+            //     this.arrSPLY.push(this.mouseDownPos.y);
+            //     this.drawSPLine();
+            // };
         }
         else {
             if (this.pen === 'line') {
@@ -703,32 +583,32 @@ class Paint {
                 // console.log('arrLine', this.arrLineX)
             };
 
-            if (this.pen === 'circle') {
-                this.arrCircleX.push(this.mouseDownPos.x);
-                this.arrCircleY.push(this.mouseDownPos.y);
-                for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
-                    this.mouseDownPos = this.arrMouseDownPosition[i + 1];
-                }
-                // console.log('arrCircle', this.arrCircleX)
+            // if (this.pen === 'circle') {
+            //     this.arrCircleX.push(this.mouseDownPos.x);
+            //     this.arrCircleY.push(this.mouseDownPos.y);
+            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
+            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
+            //     }
+            //     // console.log('arrCircle', this.arrCircleX)
 
-            };
+            // };
 
-            if (this.pen === 'rect') {
-                this.arrRectX.push(this.mouseDownPos.x);
-                this.arrRectY.push(this.mouseDownPos.y);
-                for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
-                    this.mouseDownPos = this.arrMouseDownPosition[i + 1];
-                }
-            }
+            // if (this.pen === 'rect') {
+            //     this.arrRectX.push(this.mouseDownPos.x);
+            //     this.arrRectY.push(this.mouseDownPos.y);
+            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
+            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
+            //     }
+            // }
 
-            if (this.pen === 'spl') {
-                this.arrSPLX.push(this.mouseDownPos.x);
-                this.arrSPLY.push(this.mouseDownPos.y);
-            }
+            // if (this.pen === 'spl') {
+            //     this.arrSPLX.push(this.mouseDownPos.x);
+            //     this.arrSPLY.push(this.mouseDownPos.y);
+            // }
         };
 
         //Load
-        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValLucDoc.value === "On") {
+        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
             if (inputLoad === undefined) {
                 //normal last multicurrent obj
                 this.renderObject(processingData.allObject);
@@ -743,7 +623,7 @@ class Paint {
                 //render Prop
                 switch (selectedObj.className) {
                     case "Point":
-                        if (this.curValPointLoad.value === "On") {
+                        if (this.curValPointLoad.value === "On" || this.curValMoment.value === "On") {
                             this.renderProperty("point", selectedObj);
                             this.drawPoint(selectedObj, "green");
                             if (inputLoad === undefined) {
@@ -751,7 +631,7 @@ class Paint {
                             }
                         }
                     case "Line":
-                        if (this.curValPressLoad.value === "On" || this.curValLucDoc.value === "On") {
+                        if (this.curValPressLoad.value === "On") {
                             this.renderProperty("line", selectedObj);
                             this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
                             if (inputLoad === undefined) {
@@ -771,7 +651,7 @@ class Paint {
         }
 
         //addName
-        if (this.pen === "select" && (this.curValNameLine.value === "On" || this.curValNamePoint.value === "On" || this.curValNameArea.value === "On")) {
+        if (this.pen === "select" && (this.curValName.value === "On")) {
             if (inputID === undefined) {
                 //normal last multicurrent obj
                 this.renderObject(processingData.allObject);
@@ -786,29 +666,24 @@ class Paint {
                 //render Prop
                 switch (selectedObj.className) {
                     case "Point":
-                        if (this.curValNamePoint.value === "On") {
-                            this.renderProperty("point", selectedObj);
-                            this.drawPoint(selectedObj, "green");
-                            if (inputID === undefined) {
-                                this.addNamePoint(selectedObj);
-                            }
+                        this.renderProperty("point", selectedObj);
+                        this.drawPoint(selectedObj, "green");
+                        if (inputID === undefined) {
+                            this.addNamePoint(selectedObj);
                         }
+                        break;
                     case "Line":
-                        if (this.curValNameLine.value === "On") {
-                            this.renderProperty("line", selectedObj);
-                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
-                            if (inputID === undefined) {
-                                this.addNameLine(selectedObj);
-                            }
+                        this.renderProperty("line", selectedObj);
+                        this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                        if (inputID === undefined) {
+                            this.addNameLine(selectedObj);
                         }
                         break;
                     case "Area":
-                        if (this.curValNameArea.value === "On") {
-                            this.renderProperty("Area", selectedObj);
-                            this.fillArea(selectedObj, "#b6d8e7");
-                            if (inputID === undefined) {
-                                this.addNameArea(selectedObj);
-                            }
+                        this.renderProperty("Area", selectedObj);
+                        this.fillArea(selectedObj, "#b6d8e7");
+                        if (inputID === undefined) {
+                            this.addNameArea(selectedObj);
                         }
                         break;
                 }
@@ -961,17 +836,17 @@ class Paint {
         //----------------------------//
 
         //find inters point => add to grid
-        let lineList = [...processingData.allLine];
-        for (let i = 0; i < lineList.length - 1; i++) {
-            var IntersPoint = processingData.prototype.intersectionCheck(lineList[i], lineList[lineList.length - 1]);
-            if (IntersPoint.Exist) {
-                // console.log("IntersPoint");
-                //create Point
-                let newPoint = new Point(IntersPoint.Coord);
-                //add
-                processingData.prototype.addObject(newPoint, processingData.allPoint);
-            }
-        };
+        // let lineList = [...processingData.allLine];
+        // for (let i = 0; i < lineList.length - 1; i++) {
+        //     var IntersPoint = processingData.prototype.intersectionCheck(lineList[i], lineList[lineList.length - 1]);
+        //     if (IntersPoint.Exist) {
+        //         // console.log("IntersPoint");
+        //         //create Point
+        //         let newPoint = new Point(IntersPoint.Coord);
+        //         //add
+        //         processingData.prototype.addObject(newPoint, processingData.allPoint);
+        //     }
+        // };
 
         // add node to arrGrid
         this.addNode();
@@ -1013,7 +888,7 @@ class Paint {
 
     drawText(Obj, text) {
         this.ctx.save();
-        this.ctx.font = "18px Arial";
+        this.ctx.font = "13px Arial";
 
         // this.ctx.textAlign = "center";
         try {
@@ -1062,8 +937,8 @@ class Paint {
 
     getPointOffset(point1, point2, offsetPoint) {
         //co offsetPoint de vecto chi phuong u = const
-        let a = point2.x - point1.x;
-        let b = point2.y - point1.y;
+        let a = point1.x - point2.x;
+        let b = point1.y - point2.y;
 
         let u = { x: a, y: b };
         let t = Math.sqrt(10 * 10 / (a * a + b * b))
@@ -1071,23 +946,22 @@ class Paint {
     }
 
     //point 2 of force vecto
-    getPoint2ndOfPress(point1, point2, pointAddForce) {
-        // 2 -1 : nen, 1-2 keo
-        
+    getPoint2ndOfPress(point1, point2, pointAddForce, obj) {
+        let u;
+
         let a = point1.x - point2.x;
         let b = point1.y - point2.y;
-        let u;
         u = { x: a, y: b };//perpendicular
 
         let t = Math.sqrt(35 * 35 / (a * a + b * b))
         return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
     }
 
-    getPoint2ndOfLucDoc(point1, point2, pointAddForce) {
-        // 2 -1 : nen, 1-2 keo
+    getPoint2ndOfLucDoc(point1, point2, pointAddForce, obj) {
+        let u;
         let a = point1.x - point2.x;
         let b = point1.y - point2.y;
-        let u;
+
         u = { x: -b, y: a }; //parallel
 
         let t = Math.sqrt(35 * 35 / (a * a + b * b))
@@ -1179,7 +1053,7 @@ class Paint {
     mouseMove(event) {
         let mouseMovePos = this.getMousePosition(event);
         this.currentMouseMovePos = this.getMousePosition(event);
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValNamePoint.value === "On" || this.curValNameLine.value === "On" || this.curValNameArea.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValLucDoc.value === "On") {
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
             //display coord
             document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
             //
@@ -1199,12 +1073,12 @@ class Paint {
         // not link position of start and end point
         if (this.isPainting) {
             // brush
-            if (this.pen === 'brush') {
-                this.drawBrush(
-                    this.currentPos,
-                    this.currentMouseMovePos
-                );
-            };
+            // if (this.pen === 'brush') {
+            //     this.drawBrush(
+            //         this.currentPos,
+            //         this.currentMouseMovePos
+            //     );
+            // };
         };
 
         //line link start and end node
@@ -1221,43 +1095,43 @@ class Paint {
                 );
         };
 
-        if (this.pen === 'rect') {
-            if (!this.isCancled) {
-                return
-            };
-            this.undo();
-            this.drawRect
-                (
-                    this.mouseDownPos,
-                    this.currentPos
-                );
+        // if (this.pen === 'rect') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.undo();
+        //     this.drawRect
+        //         (
+        //             this.mouseDownPos,
+        //             this.currentPos
+        //         );
 
-        };
-        if (this.pen === 'circle') {
-            if (!this.isCancled) {
-                return
-            };
-            this.undo();
-            this.drawCicle
-                (
-                    this.mouseDownPos,
-                    this.currentPos
-                );
-        };
+        // };
+        // if (this.pen === 'circle') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.undo();
+        //     this.drawCicle
+        //         (
+        //             this.mouseDownPos,
+        //             this.currentPos
+        //         );
+        // };
 
-        if (this.pen === 'spl') {
-            if (!this.isCancled) {
-                return
-            };
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
-            let arrXs = [...this.arrSPLX]
-            arrXs.push(this.currentPos.x)
-            let arrYs = [...this.arrSPLY]
-            arrYs.push(this.currentPos.y)
-            console.log("X", arrXs)
-            console.log("Y", arrYs)
-            this.drawSPLine(arrXs, arrYs);
-        }
+        // if (this.pen === 'spl') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
+        //     let arrXs = [...this.arrSPLX]
+        //     arrXs.push(this.currentPos.x)
+        //     let arrYs = [...this.arrSPLY]
+        //     arrYs.push(this.currentPos.y)
+        //     console.log("X", arrXs)
+        //     console.log("Y", arrYs)
+        //     this.drawSPLine(arrXs, arrYs);
+        // }
 
 
 
@@ -1290,16 +1164,16 @@ class Paint {
         this.ctx.stroke();
     }
 
-    drawBrush(start, end) {
-        this.ctx.strokeStyle = this.currentColor;
-        this.ctx.lineWidth = this.currentWidth;
-        this.ctx.lineCap = 'round';
-        this.ctx.beginPath();
-        this.ctx.moveTo(start.x, start.y);
-        this.ctx.lineTo(end.x, end.y);
-        this.ctx.stroke();
-        this.ctx.closePath();
-    }
+    // drawBrush(start, end) {
+    //     this.ctx.strokeStyle = this.currentColor;
+    //     this.ctx.lineWidth = this.currentWidth;
+    //     this.ctx.lineCap = 'round';
+    //     this.ctx.beginPath();
+    //     this.ctx.moveTo(start.x, start.y);
+    //     this.ctx.lineTo(end.x, end.y);
+    //     this.ctx.stroke();
+    //     this.ctx.closePath();
+    // }
 
     drawLine(start, end, color = this.currentColor, width = this.currentWidth) {
         if (start != undefined) {
@@ -1314,47 +1188,47 @@ class Paint {
         }
     }
 
-    drawRect(start, end, color = this.currentColor, width = this.currentWidth) {
-        if (start != undefined) {
-            this.ctx.strokeStyle = color;
-            this.ctx.lineWidth = width;
-            this.ctx.beginPath();
-            this.ctx.rect(start.x, start.y, end.x - start.x, end.y - start.y);
-            this.ctx.stroke();
-            this.ctx.closePath();
-        };
-    }
+    // drawRect(start, end, color = this.currentColor, width = this.currentWidth) {
+    //     if (start != undefined) {
+    //         this.ctx.strokeStyle = color;
+    //         this.ctx.lineWidth = width;
+    //         this.ctx.beginPath();
+    //         this.ctx.rect(start.x, start.y, end.x - start.x, end.y - start.y);
+    //         this.ctx.stroke();
+    //         this.ctx.closePath();
+    //     };
+    // }
 
-    drawCicle(start, end, width = this.currentWidth) {
-        if (start != undefined) {
-            this.ctx.strokeStyle = this.currentColor;
-            this.ctx.lineWidth = width;
-            this.ctx.beginPath();
-            let r = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
-            this.ctx.arc(start.x, start.y, r, 0, 2 * Math.PI);
-            this.ctx.stroke();
-        }
-    }
+    // drawCicle(start, end, width = this.currentWidth) {
+    //     if (start != undefined) {
+    //         this.ctx.strokeStyle = this.currentColor;
+    //         this.ctx.lineWidth = width;
+    //         this.ctx.beginPath();
+    //         let r = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
+    //         this.ctx.arc(start.x, start.y, r, 0, 2 * Math.PI);
+    //         this.ctx.stroke();
+    //     }
+    // }
 
     gradient(a, b) {
         return (b.y - a.y) / (b.x - a.x);
     }
 
-    drawSPLine(arrXs, arrYs, color = this.currentColor, width = this.currentWidth) {
-        console.log(arrXs, arrYs);
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = width;
-        let [arrX, arrY] = processingData.prototype.InterPolationFunction(arrXs, arrYs);
-        this.ctx.beginPath();
-        this.ctx.moveTo(arrX[0], arrY[0]);
-        for (let i = 1; i <= arrX.length - 1; i++) {
-            this.ctx.lineTo(arrX[i], arrY[i]);
-        }
-        this.ctx.stroke();
-    }
+    // drawSPLine(arrXs, arrYs, color = this.currentColor, width = this.currentWidth) {
+    //     console.log(arrXs, arrYs);
+    //     this.ctx.strokeStyle = color;
+    //     this.ctx.lineWidth = width;
+    //     let [arrX, arrY] = processingData.prototype.InterPolationFunction(arrXs, arrYs);
+    //     this.ctx.beginPath();
+    //     this.ctx.moveTo(arrX[0], arrY[0]);
+    //     for (let i = 1; i <= arrX.length - 1; i++) {
+    //         this.ctx.lineTo(arrX[i], arrY[i]);
+    //     }
+    //     this.ctx.stroke();
+    // }
 
     drawForce(fromx, fromy, tox, toy, color, lineWidth) {
-        let headlen = 15; // length of head in pixels
+        let headlen = 10; // length of head in pixels
         let dx = tox - fromx;
         let dy = toy - fromy;
         let angle = Math.atan2(dy, dx);
@@ -1381,21 +1255,84 @@ class Paint {
         this.drawForce(Obj.x, Obj.y, endPointY.x, endPointY.y, color, lineWidth);
     }
 
-    drawForceInLine(Obj, color = "red", lineWidth = 1) {
-        let startPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length, Obj); //array
-        for (let i = 0; i < startPoint.length; i++) {
-            let endPoint = this.getPoint2ndOfPress(Obj.Point[0], Obj.Point[1], startPoint[i]);
-            this.drawForce(startPoint[i].x, startPoint[i].y, endPoint.x, endPoint.y, color, lineWidth);
+    drawMoment(Obj, color = "green", lineWidth = 1) {
+        this.ctx.beginPath();
+        let x = Obj.x,
+            y = Obj.y,
+            r = 20,
+            sAngle = Math.PI,
+            eAngle = 0;
+            
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.arc(x, y, r, sAngle, eAngle);
+
+        let headlen = 10; // length of head in pixels
+        let u1, u2, fromx, fromy, tox, toy;
+
+        if (Obj.moment[0] > 0.00001) {
+            fromx = Obj.x + r;
+            fromy = Obj.y - 5;
+            tox = Obj.x + r;
+            toy = Obj.y;
+            u1 = 4;
+            u2 = 6;
+
         }
+        else {
+            fromx = Obj.x - r;
+            fromy = Obj.y - 5;
+            tox = Obj.x - r;
+            toy = Obj.y;
+            u1 = 6;
+            u2 = 4;
+        }
+
+        let dx = tox - fromx,
+            dy = toy - fromy,
+            angle = Math.atan2(dy, dx);
+
+        this.ctx.moveTo(tox, toy);
+        this.ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / u1), toy - headlen * Math.sin(angle - Math.PI / u1));
+        this.ctx.moveTo(tox, toy);
+        this.ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / u2), toy - headlen * Math.sin(angle + Math.PI / u2));
+        this.ctx.stroke();
     }
 
-    drawLucDoc(Obj, color = "blue", lineWidth = 1) {
-        let pointOffsetStart = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[0]);
-        let pointOffsetEnd = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[1]);
-        let start = this.getPointInLineLucDoc(pointOffsetStart, pointOffsetEnd, Obj.length, Obj); //array
-        for (let i = 0; i < start.length; i++) {
-            let endPoint = this.getPoint2ndOfLucDoc(Obj.Point[0], Obj.Point[1], start[i]);
-            this.drawForce(start[i].x, start[i].y, endPoint.x, endPoint.y, color, lineWidth);
+    drawForceInLine(Obj, lineWidth = 1) {
+        if (Obj.force[0] !== undefined && Obj.force[0] !== 0) {
+            let pointOffsetStart = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[0]);
+            let pointOffsetEnd = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[1]);
+            if (Obj.force[0] > 0.00001) {
+                let start = this.getPointInLineLucDoc(pointOffsetStart, pointOffsetEnd, Obj.length); //array
+                for (let i = 0; i < start.length; i++) {
+                    let endPoint = this.getPoint2ndOfLucDoc(Obj.Point[0], Obj.Point[1], start[i], Obj);
+                    this.drawForce(start[i].x, start[i].y, endPoint.x, endPoint.y, 'blue', lineWidth);
+                }
+            }
+            else {
+                let endPoint = this.getPointInLineLucDoc(pointOffsetStart, pointOffsetEnd, Obj.length); //array
+                for (let i = 0; i < endPoint.length; i++) {
+                    let start = this.getPoint2ndOfLucDoc(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
+                    this.drawForce(start.x, start.y, endPoint[i].x, endPoint[i].y, 'blue', lineWidth);
+                }
+            }
+        }
+        if (Obj.force[1] !== undefined && Obj.force[1] !== 0) {
+            if (Obj.force[1] > 0.0001) {
+                let startPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length); //array
+                for (let i = 0; i < startPoint.length; i++) {
+                    let endPoint = this.getPoint2ndOfPress(Obj.Point[0], Obj.Point[1], startPoint[i], Obj);
+                    this.drawForce(startPoint[i].x, startPoint[i].y, endPoint.x, endPoint.y, 'red', lineWidth);
+                }
+            }
+            else {
+                let endPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length); //array
+                for (let i = 0; i < endPoint.length; i++) {
+                    let startPoint = this.getPoint2ndOfPress(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
+                    this.drawForce(startPoint.x, startPoint.y, endPoint[i].x, endPoint[i].y, 'red', lineWidth);
+                }
+            }
         }
     }
 
@@ -1472,8 +1409,6 @@ class Paint {
             this.ctx.strokeStyle = 'grey';
             this.drawGrid();
         }
-        let arrPress = [...arrObj];
-        let arrLucDoc = [...arrObj];
         for (let i = arrObj.length - 1; i >= 0; i--) {
             if (arrObj[i] instanceof Area) {
                 this.fillArea(arrObj[i]);
@@ -1487,11 +1422,11 @@ class Paint {
                 if (arrObj[i].name !== undefined) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
-                if (arrObj[i].force !== undefined) {
-                    this.drawForceInLine(arrPress[i]);
+                if (arrObj[i].force[0] !== undefined && arrObj[i].force[0] !== 0) {
+                    this.drawForceInLine(arrObj[i]);
                 }
-                if (arrObj[i].lucDoc !== undefined) {
-                    this.drawLucDoc(arrLucDoc[i]);
+                if (arrObj[i].force[1] !== undefined && arrObj[i].force[1] !== 0) {
+                    this.drawForceInLine(arrObj[i]);
                 }
             }
             else if (arrObj[i] instanceof Point) {
@@ -1499,8 +1434,11 @@ class Paint {
                 if (arrObj[i].name !== undefined) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
-                if (arrObj[i].force !== undefined) {
+                if (arrObj[i].force[0] !== undefined || arrObj[i].force[1] !== undefined) {
                     this.drawForceInPoint(arrObj[i]);
+                }
+                if (arrObj[i].moment[0] !== undefined) {
+                    this.drawMoment(arrObj[i]);
                 }
             }
         }
