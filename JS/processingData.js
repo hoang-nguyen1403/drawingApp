@@ -364,7 +364,7 @@ class processingData {
         let arrYOutPut = [];
         for (let i = 0; i <= allFunc.length - 1; i++) {
             //create range
-            let xRange = math.range(arrX[i], arrX[i + 1], (arrX[i + 1] - arrX[i]) / 50);
+            let xRange = math.range(arrX[i], arrX[i + 1], (arrX[i + 1] - arrX[i]) / 10);
             let yRange = [];
             for (let x of xRange._data) {
                 let y = allFunc[i][0] + allFunc[i][1] * (x - arrX[i]) + allFunc[i][2] * ((x - arrX[i]) ** 2) +
@@ -375,13 +375,63 @@ class processingData {
             arrXOutPut.push(...xRange._data);
         }
         //
-        console.log(allFunc)
         return [arrXOutPut, arrYOutPut]
     }
     saveObj() {
         let data = JSON.stringify(processingData.allObject);
-        var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
-        saveAs(blob, "data.txt");
+        let num_nodes;
+        let num_segments;
+        let nodes = [];
+        let node_names = [];
+        let segments = [];
+        let segment_names = [];
+        let surfaces = [];
+        let surface_names = [];
+        num_nodes = processingData.allPoint.length;
+        num_segments = processingData.allLine.length;
+        for (let point of processingData.allPoint) {
+            nodes.push(point.point);
+            node_names.push(point.name);
+        }
+        for (let line of processingData.allLine) {
+            let index1 = nodes.findIndex((value) => JSON.stringify(value) === JSON.stringify(line.Point[0].point));
+            let index2 = nodes.findIndex((value) => JSON.stringify(value) === JSON.stringify(line.Point[1].point));
+            let segment = [index1, index2];
+            segments.push(segment)
+            segment_names.push(line.name)
+        }
+        for (let area of processingData.allArea) {
+            let surface = [];
+            for (let i = 0; i <= area.PointFlow.length - 2; i++) {
+                let point = area.PointFlow[i];
+
+                let index = nodes.findIndex((value) => JSON.stringify(value) === JSON.stringify(point));
+                surface.push(index);
+            }
+            surfaces.push(surface);
+            surface_names.push(area.name)
+        }
+        let jsonObject = {
+            "num_nodes": num_nodes,
+            "num_segments": num_segments,
+            "node_coords": nodes,
+            "node_names": node_names,
+            "segments": segments,
+            "segment_names": segment_names,
+            "surfaces": surfaces,
+            "surface_names": surface_names
+        }
+        let jsonData = JSON.stringify(jsonObject)
+        //save to file
+        // var fs = require('fs');
+        // fs.writeFile('user.json', jsonData, (err) => {
+        //     if (err) {
+        //         throw err;
+        //     }
+        //     console.log("JSON data is saved.");
+        // });
+        var blob = new Blob([jsonData], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, "data.json");
     }
     updateStorage() {
         processingData.allPoint = [];
@@ -433,31 +483,59 @@ class processingData {
     createData(inputData) {
         //delete old data
         PaintIn.clearAll();
+        //create point
+        let nodeX = math.subset(inputData["node_coords"], math.index(math.range(0, inputData["node_coords"].length), 0));
+        let nodeY = math.subset(inputData["node_coords"], math.index(math.range(0, inputData["node_coords"].length), 1));
+        nodeX = nodeX.flat();
+        nodeY = nodeY.flat();
+        let allPoint = this.createPoint(nodeX, nodeY, inputData["node_names"], Array(nodeX.length).fill(undefined));
 
-        for (let i = 0; i <= inputData.length - 1; i++) {
-            if (inputData[i].className === "Line") {
-                let point1 = inputData[i].Point[0];
-                let point2 = inputData[i].Point[1];
-                let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y],
-                    [point1.name, point2.name], [point1.force, point2.force]);
-                let lineObj = this.createLine(allPointObj, [inputData[i].name], [inputData[i].lineColor],
-                    [inputData[i].lineWidth], [inputData[i].force]);
-                this.addObject(lineObj[0], processingData.allLine);
-            } else if (inputData[i].className === "Area") {
-                let allLineObj = [];
-                for (let line of inputData[i].Line) {
-                    let point1 = line.Point[0];
-                    let point2 = line.Point[1];
-                    let allPointObj = this.createPoint([point1.x, point2.x], [point1.y, point2.y],
-                        [point1.name, point2.name], [point1.force, point2.force]);
-                    let lineObj = this.createLine(allPointObj, [line.name], [line.lineColor],
-                        [line.lineWidth], [line.force]);
-                    allLineObj.push(lineObj[0]);
-                }
-                let areaObj = new Area(allLineObj, inputData[i].name, inputData[i].PointFlow);
-                this.addObject(areaObj, processingData.allArea)
-            }
+        //create line
+        let allLine = [];
+        for (let i = 0; i <= inputData["segments"].length - 1; i++) {
+            let point1 = allPoint[inputData["segments"][i][0]];
+            let point2 = allPoint[inputData["segments"][i][1]];
+            let lineName = inputData["segment_names"][i];
+            let lineWidth = PaintIn.currentWidth;
+            let lineColor = PaintIn.currentColor;
+            let lineForce = undefined;
+            let line = new Line(point1, point2, lineName, lineColor, lineWidth, lineForce, undefined);
+            allLine.push(line)
         }
+        let allArea = [];
+        for (let i = 0; i <= inputData["surfaces"].length - 1; i++) {
+            let allLineOfArea = [];
+            for (let ii = 0; ii <= inputData["surfaces"][i].length - 1; ii++) {
+                let arrPoint = inputData["surfaces"][i];
+                let indexPoint1 = arrPoint[ii];
+                let indexPoint2;
+                if (ii === inputData["surfaces"][i].length - 1) {
+                    indexPoint2 = arrPoint[0];
+                } else {
+                    indexPoint2 = arrPoint[ii + 1];
+                }
+                let lineOfArea = [indexPoint1, indexPoint2];
+                let lineOfArea_ = [indexPoint2, indexPoint1];
+                let indexOfline = inputData["segments"].findIndex(value =>
+                (
+                    JSON.stringify(value) === JSON.stringify(lineOfArea) ||
+                    JSON.stringify(value) === JSON.stringify(lineOfArea_)
+                ));
+
+                allLineOfArea.push(allLine[indexOfline])
+            }
+            let PointFlow = [];
+            inputData["surfaces"][i].forEach((value) => {
+                PointFlow.push(inputData["node_coords"][value])
+            });
+            PointFlow[PointFlow.length] = PointFlow[0];
+            //create area
+            let area = new Area(allLineOfArea, inputData["surface_names"][i], PointFlow);
+            allArea.push(area);
+        }
+        //add data
+        processingData.allLine = allLine;
+        processingData.allArea = allArea;
         //update storage
         this.updateStorage()
         //update screen
@@ -466,13 +544,14 @@ class processingData {
 };
 // Point class
 class Point {
-    constructor(Arr, pointName, force) {
+    constructor(Arr, pointName) {
         this.point = Arr;
         this.x = Arr[0];
         this.y = Arr[1];
         this.className = "Point";
         this.name = pointName;
-        this.force = force;
+        this.force = [];
+        this.moment = [];
     };
     //Method
     isIn(mouse) {
@@ -482,7 +561,7 @@ class Point {
 
 // Line class
 class Line {
-    constructor(Point1, Point2, lineName, lineColor, lineWidth, force, lucDoc) {
+    constructor(Point1, Point2, lineName, lineColor, lineWidth) {
         this.Point = [Point1, Point2];
         //
         this.length = math.norm(math.subtract(Point1.point, Point2.point))
@@ -490,8 +569,7 @@ class Line {
         this.width = lineWidth;
         this.className = "Line";
         this.name = lineName;
-        this.force = force;
-        this.lucDoc = lucDoc;
+        this.force = [];
     }
     //Method
     isIn(Mouse) {
@@ -564,6 +642,27 @@ class Area {
         return count % 2 === 0 ? false : true
     };
 };
+// Line class
+class Curve {
+    constructor(arrX, arrY, curveName, lineColor, lineWidth, force) {
+        this.listX = arrX;
+        this.listY = arrY;
+        //
+        this.length = [];
+        this.color = lineColor;
+        this.width = lineWidth;
+        this.className = "Curve";
+        this.name = curveName;
+        this.force = force;
+    }
+    //Method
+    isIn(Mouse) {
+        let A_to_mouse = math.norm(math.subtract(this.Point[0].point, Mouse));
+        let mouse_to_B = math.norm(math.subtract(Mouse, this.Point[1].point));
+        return (A_to_mouse + mouse_to_B - this.length <= 0.1) ? true : false
+    };
+
+};
 processingData.allObject = [];
 processingData.allLine = [];
 processingData.allPoint = [];
@@ -614,26 +713,35 @@ function inputForce(x, y, obj) {
         canvas: document.getElementById('myCanvas'),
         x: x,
         y: y,
-        fontSize: 18,
+        fontSize: 13,
         fontFamily: 'Arial',
         fontColor: '#212121',
         fontWeight: 'bold',
-        width: 25,
+        width: 40,
         height: 25,
         padding: 0,
         borderColor: '#000',
         borderRadius: 3,
 
         onsubmit: function () {
-            // PaintIn.drawText(obj, this.value());
-            if (PaintIn.curValPressLoad.value === "On") {
-                obj.force = this.value();
-                let Fx = Number((obj.force).slice(0, obj.force.indexOf(',')));
-                let Fy = Number((obj.force).slice(obj.force.indexOf(',') + 1, (obj.force).length));
-                console.log(Fx,Fy)
+
+            if (PaintIn.curValPointLoad.value === "On") {
+                if ((this.value()).includes(",") === true) {
+                    obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
+                    obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
+                }
+                else {
+                    obj.force[0] = Number(this.value());;
+                    obj.force[1] = 0;
+                }
             }
-            else if (PaintIn.curValLucDoc.value === "On") {
-                obj.lucDoc = this.value();
+            if (PaintIn.curValMoment.value === "On") {
+                obj.moment[0] = Number(this.value());
+            }
+            if (PaintIn.curValPressLoad.value === "On") {
+                obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
+                obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
+
             }
             this.destroy();
             inputLoad = undefined;
