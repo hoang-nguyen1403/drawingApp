@@ -9,7 +9,7 @@ class Paint {
         this.currentValueCircle = document.getElementById('circle');
         this.currentValueRect = document.getElementById('rect');
         this.currentValueSpl = document.getElementById('spl');
-        this.currentValueSelect = document.getElementById('select');
+        this.curValSelect = "Off";
 
         this.curValName = document.getElementById('valueName');
 
@@ -65,7 +65,7 @@ class Paint {
         this.arrRectX = [];
         this.arrRectY = [];
         this.arrGrid = [];
-        this.arr = [];
+        // this.arr = [];
         this.arrMove = []; // mouseMovePos
         this.arrSPL = [];
         this.arrSPLX = [];
@@ -111,6 +111,7 @@ class Paint {
             currentActive.value = "Off";
             this.pen = '';
             document.getElementById(nameID).classList.remove("active");
+            this.selectObj();
         }
     }
 
@@ -149,18 +150,24 @@ class Paint {
         if (event.keyCode === 27) {
             this.isCancled = false;
             // this.offButtonDraw(this.currentValueBrush, "brush");
-            // this.offButtonDraw(this.currentValueLine, "line");
+            this.offButtonDraw(this.currentValueLine, "line");
             // this.offButtonDraw(this.currentValueRect, "rect");
             // this.offButtonDraw(this.currentValueCircle, "circle");
             // this.offButtonDraw(this.currentValueSpl, "spl");
-            this.offButton(this.curValName, "valueName");
-            if (this.currentValueSelect.value === "On") {
-                this.pen = "select";
-            }
+            this.offButton(this.curValPointLoad, "pointLoad");
+            this.offButton(this.curValPressLoad, "pressLoad");
+            this.offButton(this.curValMoment, "moment");
+
+            this.pen = undefined;
+            this.selectObj(event);
+
+            // if (this.currentValueSelect.value === "On") {
+            //     this.pen = "select";
+            // }
             // else {
             //     this.pen = '';
             // }
-            this.arr = [];
+            // this.arr = [];
             this.arrLineX = [];
             this.arrLineY = [];
             this.arrCircleX = [];
@@ -194,10 +201,7 @@ class Paint {
                 }
             }
 
-            if (this.currentValueLine.value === "On") {
-                processingData.prototype.areaDetect(processingData.allLine);
-            }
-
+            processingData.prototype.areaDetect(processingData.allLine);
             this.renderProperty("off", "");
             this.renderObject(processingData.allObject);
         }
@@ -277,7 +281,7 @@ class Paint {
 
     chooseLine() {
         // this.offButtonDraw(this.currentValueBrush, "brush");
-        this.offButtonDraw(this.currentValueSelect, "select");
+        // this.offButtonDraw(this.currentValueSelect, "select");
         // this.offButtonDraw(this.currentValueSpl, "spl");
         // this.offButtonDraw(this.currentValueCircle, "circle");
         // this.offButtonDraw(this.currentValueRect, "rect");
@@ -286,6 +290,7 @@ class Paint {
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
         this.onOffButtonDraw(this.currentValueLine, "line");
+
     }
 
     // chooseCircle() {
@@ -334,364 +339,11 @@ class Paint {
     //     this.offButton(this.curValPressLoad, "pressLoad");
     //     this.onOffButtonDraw(this.currentValueSpl, "spl");
     // }
-    chooseSelect() {
-        // this.offButtonDraw(this.currentValueBrush, "brush");
-        // this.offButtonDraw(this.currentValueSpl, "spl");
-        // this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        // this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
 
-        this.onOffButtonDraw(this.currentValueSelect, "select");
-
-        if (this.currentValueSelect.value == "Off") {
-            this.offButton(this.curValName, "valueName");
-
-        }
-    }
-    clearAll() {
-        this.isCancled = false;
-        this.ctx.fillStyle = 'white';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
-        // this.pen = '';
-        this.arrMouseDownPosition = [];
-        this.arr = [];
-        this.arrLineX = [];
-        this.arrLineY = [];
-        this.arrCircleX = [];
-        this.arrCircleY = [];
-        this.arrRectX = [];
-        this.arrRectY = [];
-        this.arrLineColor = [];
-        this.arrLineWidth = [];
-
-        if (this.currentValueGrid.value == "On") {
-            this.ctx.strokeStyle = 'grey';
-            this.drawGrid();
-        }
-        //---// clear saved data
-        processingData.allLine = [];
-        processingData.allPoint = [];
-        processingData.allArea = [];
-        processingData.allObject = [];
-    }
-
-    choiceEvent() {
-        this.toolbar.addEventListener('change', e => {
-            if (e.target.id === 'line_color') {
-                this.currentColor = e.target.value;
-            }
-
-            if (e.target.id === 'line_size') {
-                this.currentWidth = e.target.value;
-            }
-            if (e.target.id === 'sizeGrid') {
-                if (this.currentValueGrid.value == "On") {
-                    this.deltaGrid = e.target.value;
-                    this.ctx.fillStyle = 'white';
-                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-                    // function update object saved
-                    //redraw object
-                    this.renderObject(processingData.allLine);
-
-                    this.ctx.strokeStyle = 'grey';
-                    this.drawGrid();
-                }
-                // console.log(this.currentValueGrid.value)
-            }
-        });
-    }
-
-    buttonGrid() {
-        this.arrGrid = [];
-        this.getNodePos();
-
-        this.arrGrid = this.concatArr(this.arrGrid, this.arrRecordNode);
-        // console.log(this.arrGrid.length)
-
-        if (this.currentValueGrid.value == "Off") {
-            this.currentValueGrid.value = "On";
-            this.ctx.strokeStyle = 'grey';
-            this.drawGrid();
-        } else {
-            this.currentValueGrid.value = "Off";
-            // this.ctx.strokeStyle = 'white';
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        };
-        // console.log(this.currentValueGrid.value)
-        this.renderObject(processingData.allObject);
-    }
-
-    addPointLoad() {
-        // this.offButtonDraw(this.currentValueBrush, "brush");
-        // this.offButtonDraw(this.currentValueSpl, "spl");
-        // this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        // this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValName, "valueName");
-        this.offButton(this.curValPressLoad, "pressLoad");
-
-        this.onOffButton(this.curValPointLoad, "pointLoad");
-
-        this.renderObject(processingData.allObject);
-    }
-
-    addPressLoad() {
-        // this.offButtonDraw(this.currentValueBrush, "brush");
-        // this.offButtonDraw(this.currentValueSpl, "spl");
-        // this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        // this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValName, "valueName");
-        this.offButton(this.curValPointLoad, "pointLoad");
-
-        this.onOffButton(this.curValPressLoad, "pressLoad");
-
-        this.renderObject(processingData.allObject);
-    }
-
-    addMoment() {
-        // this.offButtonDraw(this.currentValueBrush, "brush");
-        // this.offButtonDraw(this.currentValueSpl, "spl");
-        // this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        // this.offButtonDraw(this.currentValueCircle, "circle");
-        this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValName, "valueName");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValPressLoad, "pressLoad");
-
-        this.onOffButton(this.curValMoment, "moment");
-
-        this.renderObject(processingData.allObject);
-    }
-
-    //ID
-    addValueName() {
-        if (this.currentValueSelect.value === "On") {
-            // this.offButtonDraw(this.currentValueBrush, "brush");
-            // this.offButtonDraw(this.currentValueSpl, "spl");
-            // this.offButtonDraw(this.currentValueRect, "rect");
-            this.offButtonDraw(this.currentValueLine, "line");
-            // this.offButtonDraw(this.currentValueCircle, "circle");
-
-            this.onOffButton(this.curValName, "valueName");
-
-            if (this.curValName.value === "On") {
-                this.offButton(this.curValPointLoad, "pointLoad");
-                this.offButton(this.curValPressLoad, "pressLoad");
-            }
-            // if (inputID !== undefined) {
-            //     inputID.destroy();
-            // }
-        }
-    }
-
-    listenEvent() {
-        this.canvas.addEventListener('mousedown', (event) => this.mouseDown(event));
-        this.canvas.addEventListener('mouseup', (event) => this.mouseUp(event));
-        this.canvas.addEventListener('mousemove', (event) => this.mouseMove(event));
-        document.addEventListener('keydown', (event) => this.keyDown(event));
-        // this.canvas.addEventListener('mouseDown', (event) => this.changeColorLine(event));
-        //up file event
-        document.getElementById('openFile').addEventListener('change', function () {
-            var fr = new FileReader();
-            fr.onload = function () {
-                let inputData = JSON.parse(fr.result);
-                processingData.prototype.createData(inputData);
-            }
-            fr.readAsText(this.files[0]);
-        });
-        //make canvas responsive
-        onresize = (event) => {
-            PaintIn.canvas.width = document.getElementById("drawing_page").clientWidth;
-            PaintIn.canvas.height = document.getElementById("drawing_page").clientHeight;
-            PaintIn.renderObject(processingData.allObject);
-        }
-    }
-
-    getMousePosition(event) {
-        let rect = this.canvas.getBoundingClientRect();
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
-            return {
-                x: (event.clientX - rect.left),
-                y: (event.clientY - rect.top)
-            };
-        };
-    }
-
-    mouseDown(event) {
-        this.isPainting = true;
-        this.image = new Image;
-        this.image.src = this.canvas.toDataURL("image/bmp ", 1.0);
-        this.mouseDownPos = this.getMousePosition(event); //start
-        this.arrMouseDownPosition.push(this.mouseDownPos);
-        this.currentPos = this.getMousePosition(event);
-
-        if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
-            // console.log(this.arrGrid.length)
-            //choose the nearest mouseDown
-            this.arr.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
-
-            if (this.pen === 'line') {
-                for (let i = 0; i < this.arr.length; i++) {
-                    this.mouseDownPos = this.arr[i];
-                }
-                this.arrLineX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
-                this.arrLineY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-                this.arrLineColor.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
-                this.arrLineWidth.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
-                // console.log('arrLine', this.arrLineX)
-            };
-            // if (this.pen === 'circle') {
-            //     this.arrCircleX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
-            //     this.arrCircleY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-            //     for (let i = 1; i < this.arr.length; i += 2) {
-            //         this.mouseDownPos = this.arr[i + 1];
-            //     }
-            //     // console.log('arrCircle', this.arrCircleX)
-            // };
-
-            // if (this.pen === 'rect') {
-            //     this.arrRectX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
-            //     this.arrRectY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-            //     for (let i = 1; i < this.arr.length; i += 2) {
-            //         this.mouseDownPos = this.arr[i + 1];
-            //     }
-            //     this.arrRectColor = this.arrRect;
-            //     // console.log('arrRect', this.arrRectX)
-            // };
-
-            // if (this.pen === 'spl') {
-            //     this.arrSPLX.push(this.mouseDownPos.x);
-            //     this.arrSPLY.push(this.mouseDownPos.y);
-            //     this.drawSPLine();
-            // };
-        }
-        else {
-            if (this.pen === 'line') {
-                this.arrLineX.push(this.mouseDownPos.x);
-                this.arrLineY.push(this.mouseDownPos.y);
-                this.arrLineColor.push(this.currentColor);
-                this.arrLineWidth.push(this.currentWidth);
-                // console.log('arrLine', this.arrLineX)
-            };
-
-            // if (this.pen === 'circle') {
-            //     this.arrCircleX.push(this.mouseDownPos.x);
-            //     this.arrCircleY.push(this.mouseDownPos.y);
-            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
-            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
-            //     }
-            //     // console.log('arrCircle', this.arrCircleX)
-
-            // };
-
-            // if (this.pen === 'rect') {
-            //     this.arrRectX.push(this.mouseDownPos.x);
-            //     this.arrRectY.push(this.mouseDownPos.y);
-            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
-            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
-            //     }
-            // }
-
-            // if (this.pen === 'spl') {
-            //     this.arrSPLX.push(this.mouseDownPos.x);
-            //     this.arrSPLY.push(this.mouseDownPos.y);
-            // }
-        };
-
-        //Load
-        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
-            if (inputLoad === undefined) {
-                //normal last multicurrent obj
-                this.renderObject(processingData.allObject);
-                //trace obj
-                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
-                this.arrCurObj[0] = selectedObj;
-                if (selectedObj === undefined) {
-                    this.renderProperty("off", selectedObj);
-                    this.arrCurObj = [];
-                    return;
-                }
-                //render Prop
-                switch (selectedObj.className) {
-                    case "Point":
-                        if (this.curValPointLoad.value === "On" || this.curValMoment.value === "On") {
-                            this.renderProperty("point", selectedObj);
-                            this.drawPoint(selectedObj, "green");
-                            if (inputLoad === undefined) {
-                                inputForce(selectedObj.x, selectedObj.y, selectedObj);
-                            }
-                        }
-                    case "Line":
-                        if (this.curValPressLoad.value === "On") {
-                            this.renderProperty("line", selectedObj);
-                            this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
-                            if (inputLoad === undefined) {
-                                let xM1 = (selectedObj.Point[1].x - selectedObj.Point[0].x) / 2;
-                                let yM1 = (selectedObj.Point[1].y - selectedObj.Point[0].y) / 2;
-                                let xBox = 25 / 2;
-                                let yBox = 25 / 2;
-                                let xM2 = (selectedObj.Point[0].x + xM1) - xBox;
-                                let yM2 = (selectedObj.Point[0].y + yM1) - yBox;
-                                inputForce(xM2, yM2, selectedObj);
-                            }
-                        }
-                        break;
-                }
-            }
-            return
-        }
-
-        //addName
-        if (this.pen === "select" && (this.curValName.value === "On")) {
-            if (inputID === undefined) {
-                //normal last multicurrent obj
-                this.renderObject(processingData.allObject);
-                //trace obj
-                let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
-                this.arrCurObj[0] = selectedObj;
-                if (selectedObj === undefined) {
-                    this.renderProperty("off", selectedObj);
-                    this.arrCurObj = [];
-                    return;
-                }
-                //render Prop
-                switch (selectedObj.className) {
-                    case "Point":
-                        this.renderProperty("point", selectedObj);
-                        this.drawPoint(selectedObj, "green");
-                        if (inputID === undefined) {
-                            this.addNamePoint(selectedObj);
-                        }
-                        break;
-                    case "Line":
-                        this.renderProperty("line", selectedObj);
-                        this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
-                        if (inputID === undefined) {
-                            this.addNameLine(selectedObj);
-                        }
-                        break;
-                    case "Area":
-                        this.renderProperty("Area", selectedObj);
-                        this.fillArea(selectedObj, "#b6d8e7");
-                        if (inputID === undefined) {
-                            this.addNameArea(selectedObj);
-                        }
-                        break;
-                }
-            }
-            return
-        }
-        //select
-        if (this.pen === "select") {
+    selectObj(event) {
+        if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValMoment.value === "Off") {
+            this.curValSelect = "On";
+            this.isCancled = false;
             if (window.event.ctrlKey) {
                 //normal last current obj
                 if (this.arrCurObj[0] instanceof Line) {
@@ -765,24 +417,10 @@ class Paint {
                         case "Point":
                             this.renderProperty("point", selectedObj);
                             this.drawPoint(selectedObj, "green");
-                            //
-                            // if (this.curValNamePoint.value === "On") {
-                            //     if (inputID !== undefined && inputID.value() === '') {
-                            //         inputID.destroy();
-                            //     }
-                            //     this.addNamePoint(selectedObj);
-                            // }
                             break
                         case "Line":
                             this.renderProperty("line", selectedObj);
                             this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
-                            //
-                            // if (this.curValNameLine.value === "On") {
-                            //     if (inputID !== undefined && inputID.value() === '') {
-                            //         inputID.destroy();
-                            //     }
-                            //     this.addNameLine(selectedObj);
-                            // }
                             break;
                         case "Area":
                             this.renderProperty("area", selectedObj);
@@ -791,6 +429,275 @@ class Paint {
                     }
                 }
             }
+        }
+    }
+
+    addValueName() {
+        this.pen = undefined;
+        // if (this.currentValueSelect.value === "On") {
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        this.offButton(this.curValMoment, "moment");
+        this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValPressLoad, "pressLoad");
+
+        this.onOffButton(this.curValName, "valueName");
+    }
+
+    addValPointLoad() {
+        this.pen = undefined;
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButton(this.currentValueSelect, "select")
+        this.offButton(this.curValName, "valueName");
+        this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValMoment, "moment");
+
+        this.onOffButton(this.curValPointLoad, "pointLoad");
+
+        this.renderObject(processingData.allObject);
+    }
+
+    addValPressLoad() {
+        this.pen = undefined;
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButton(this.currentValueSelect, "select")
+        this.offButton(this.curValName, "valueName");
+        this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValMoment, "moment");
+
+        this.onOffButton(this.curValPressLoad, "pressLoad");
+
+        this.renderObject(processingData.allObject);
+    }
+
+    addValMoment() {
+        this.pen = undefined;
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButton(this.currentValueSelect, "select")
+        this.offButton(this.curValName, "valueName");
+        this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValPressLoad, "pressLoad");
+
+        this.onOffButton(this.curValMoment, "moment");
+
+        this.renderObject(processingData.allObject);
+    }
+
+    clearAll() {
+        this.isCancled = false;
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
+        // this.pen = '';
+        this.arrMouseDownPosition = [];
+        // this.arr = [];
+        this.arrLineX = [];
+        this.arrLineY = [];
+        this.arrCircleX = [];
+        this.arrCircleY = [];
+        this.arrRectX = [];
+        this.arrRectY = [];
+        this.arrLineColor = [];
+        this.arrLineWidth = [];
+
+        if (this.currentValueGrid.value == "On") {
+            this.ctx.strokeStyle = 'grey';
+            this.drawGrid();
+        }
+        //---// clear saved data
+        processingData.allLine = [];
+        processingData.allPoint = [];
+        processingData.allArea = [];
+        processingData.allObject = [];
+    }
+
+    choiceEvent() {
+        this.toolbar.addEventListener('change', e => {
+            if (e.target.id === 'line_color') {
+                this.currentColor = e.target.value;
+            }
+
+            if (e.target.id === 'line_size') {
+                this.currentWidth = e.target.value;
+            }
+            if (e.target.id === 'sizeGrid') {
+                if (this.currentValueGrid.value == "On") {
+                    this.deltaGrid = e.target.value;
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    // function update object saved
+                    //redraw object
+                    this.renderObject(processingData.allLine);
+
+                    this.ctx.strokeStyle = 'grey';
+                    this.drawGrid();
+                }
+                // console.log(this.currentValueGrid.value)
+            }
+        });
+    }
+
+    buttonGrid() {
+        this.arrGrid = [];
+        this.getNodePos();
+
+        this.arrGrid = this.concatArr(this.arrGrid, this.arrRecordNode);
+        // console.log(this.arrGrid.length)
+
+        if (this.currentValueGrid.value == "Off") {
+            this.currentValueGrid.value = "On";
+            this.ctx.strokeStyle = 'grey';
+            this.drawGrid();
+        } else {
+            this.currentValueGrid.value = "Off";
+            // this.ctx.strokeStyle = 'white';
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        };
+        // console.log(this.currentValueGrid.value)
+        this.renderObject(processingData.allObject);
+    }
+
+    listenEvent() {
+        this.canvas.addEventListener('mousedown', (event) => this.mouseDown(event));
+        this.canvas.addEventListener('mouseup', (event) => this.mouseUp(event));
+        this.canvas.addEventListener('mousemove', (event) => this.mouseMove(event));
+        document.addEventListener('keydown', (event) => this.keyDown(event));
+        this.canvas.addEventListener('click', (event) => this.selectObj(event));
+        //up file event
+        document.getElementById('openFile').addEventListener('change', function () {
+            var fr = new FileReader();
+            fr.onload = function () {
+                let inputData = JSON.parse(fr.result);
+                processingData.prototype.createData(inputData);
+            }
+            fr.readAsText(this.files[0]);
+        });
+        //make canvas responsive
+        onresize = (event) => {
+            PaintIn.canvas.width = document.getElementById("drawing_page").clientWidth;
+            PaintIn.canvas.height = document.getElementById("drawing_page").clientHeight;
+            PaintIn.renderObject(processingData.allObject);
+        }
+    }
+
+    getMousePosition(event) {
+        let rect = this.canvas.getBoundingClientRect();
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.curValSelect === "On" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+            return {
+                x: (event.clientX - rect.left),
+                y: (event.clientY - rect.top)
+            };
+        };
+    }
+
+    mouseDown(event) {
+        this.isPainting = true;
+        this.image = new Image;
+        this.image.src = this.canvas.toDataURL("image/bmp ", 1.0);
+        this.mouseDownPos = this.getMousePosition(event); //start
+        this.arrMouseDownPosition.push(this.mouseDownPos);
+        this.currentPos = this.getMousePosition(event);
+
+        if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
+            // console.log(this.arrGrid.length)
+            //choose the nearest mouseDown
+            this.arr.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
+
+            if (this.pen === 'line') {
+                for (let i = 0; i < this.arr.length; i++) {
+                    this.mouseDownPos = this.arr[i];
+                }
+                this.arrLineX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
+                this.arrLineY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
+                this.arrLineColor.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
+                this.arrLineWidth.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
+                // console.log('arrLine', this.arrLineX)
+            };
+            // if (this.pen === 'circle') {
+            //     this.arrCircleX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
+            //     this.arrCircleY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
+            //     for (let i = 1; i < this.arr.length; i += 2) {
+            //         this.mouseDownPos = this.arr[i + 1];
+            //     }
+            //     // console.log('arrCircle', this.arrCircleX)
+            // };
+
+            // if (this.pen === 'rect') {
+            //     this.arrRectX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
+            //     this.arrRectY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
+            //     for (let i = 1; i < this.arr.length; i += 2) {
+            //         this.mouseDownPos = this.arr[i + 1];
+            //     }
+            //     this.arrRectColor = this.arrRect;
+            //     // console.log('arrRect', this.arrRectX)
+            // };
+
+            // if (this.pen === 'spl') {
+            //     this.arrSPLX.push(this.mouseDownPos.x);
+            //     this.arrSPLY.push(this.mouseDownPos.y);
+            //     this.drawSPLine();
+            // };
+        }
+        else {
+            if (this.pen === 'line') {
+                // this.arr = [];
+
+                this.arrLineX.push(this.mouseDownPos.x);
+                this.arrLineY.push(this.mouseDownPos.y);
+                this.arrLineColor.push(this.currentColor);
+                this.arrLineWidth.push(this.currentWidth);
+                // console.log('arrLine', this.arrLineX)
+            };
+
+            // if (this.pen === 'circle') {
+            //     this.arrCircleX.push(this.mouseDownPos.x);
+            //     this.arrCircleY.push(this.mouseDownPos.y);
+            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
+            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
+            //     }
+            //     // console.log('arrCircle', this.arrCircleX)
+
+            // };
+
+            // if (this.pen === 'rect') {
+            //     this.arrRectX.push(this.mouseDownPos.x);
+            //     this.arrRectY.push(this.mouseDownPos.y);
+            //     for (let i = 1; i < this.arrMouseDownPosition.length; i += 2) {
+            //         this.mouseDownPos = this.arrMouseDownPosition[i + 1];
+            //     }
+            // }
+
+            // if (this.pen === 'spl') {
+            //     this.arrSPLX.push(this.mouseDownPos.x);
+            //     this.arrSPLY.push(this.mouseDownPos.y);
+            // }
+        };
+
+        //Load
+        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+            this.addForce();
+        }
+
+        //addName
+        if (this.curValName.value === "On") {
+            this.addName();
         }
 
         //get data (need optimize) 
@@ -853,6 +760,115 @@ class Paint {
 
     }
 
+    mouseUp(event) {
+        this.isPainting = false;
+        this.isCancled = true;
+    }
+
+    mouseMove(event) {
+        let mouseMovePos = this.getMousePosition(event);
+        this.currentMouseMovePos = this.getMousePosition(event);
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+            //display coord
+            document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
+            //
+        };
+
+        if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
+
+            this.arrMove.push(getNearest(this.arrGrid, this.currentPos)[0][0]);
+
+            if (this.pen != 'brush') {
+                for (var i = 0; i < this.arrMove.length; i++) {
+                    this.currentPos = this.arrMove[i];
+                }
+            }
+        }
+
+        // not link position of start and end point
+        if (this.isPainting) {
+            // brush
+            // if (this.pen === 'brush') {
+            //     this.drawBrush(
+            //         this.currentPos,
+            //         this.currentMouseMovePos
+            //     );
+            // };
+        };
+
+        //line link start and end node
+        if (this.pen === 'line') {
+
+            if (!this.isCancled) {
+                return
+            };
+            this.undo();
+            this.drawLine
+                (
+                    this.mouseDownPos,
+                    this.currentPos
+                );
+        };
+
+        // if (this.pen === 'rect') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.undo();
+        //     this.drawRect
+        //         (
+        //             this.mouseDownPos,
+        //             this.currentPos
+        //         );
+
+        // };
+        // if (this.pen === 'circle') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.undo();
+        //     this.drawCicle
+        //         (
+        //             this.mouseDownPos,
+        //             this.currentPos
+        //         );
+        // };
+
+        // if (this.pen === 'spl') {
+        //     if (!this.isCancled) {
+        //         return
+        //     };
+        //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
+        //     let arrXs = [...this.arrSPLX]
+        //     arrXs.push(this.currentPos.x)
+        //     let arrYs = [...this.arrSPLY]
+        //     arrYs.push(this.currentPos.y)
+        //     console.log("X", arrXs)
+        //     console.log("Y", arrYs)
+        //     this.drawSPLine(arrXs, arrYs);
+        // }
+
+
+
+        if (this.pen === 'select') {
+            // //trace area
+            // //need optimize
+            // for (let area of processingData.allArea) {
+            //     if (area.areaTouch([this.currentMouseMovePos.x,this.currentMouseMovePos.y])) {
+            //         this.renderProperty("area",area);
+            //         this.fillArea(area,"#b6d8e7");
+            //         return;
+            //     } else {
+            //         this.fillArea(area);
+            //         this.renderProperty("off",area);
+            //     };
+            // };
+
+        }
+
+        this.currentPos = mouseMovePos;
+    }
+
     addNamePoint(Obj) {
         let xC = Obj.x;
         let yC = Obj.y;
@@ -875,6 +891,89 @@ class Paint {
         let xC = Obj.Center[0];
         let yC = Obj.Center[1];
         inputName(xC, yC, Obj);
+    }
+
+    addName() {
+        //addName
+        if (inputID === undefined && this.pen === undefined) {
+            //normal last multicurrent obj
+            this.renderObject(processingData.allObject);
+            //trace obj
+            let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+            this.arrCurObj[0] = selectedObj;
+            if (selectedObj === undefined) {
+                this.renderProperty("off", selectedObj);
+                this.arrCurObj = [];
+                return;
+            }
+            //render Prop
+            switch (selectedObj.className) {
+                case "Point":
+                    this.renderProperty("point", selectedObj);
+                    this.drawPoint(selectedObj, "green");
+                    if (inputID === undefined) {
+                        this.addNamePoint(selectedObj);
+                    }
+                    break;
+                case "Line":
+                    this.renderProperty("line", selectedObj);
+                    this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                    if (inputID === undefined) {
+                        this.addNameLine(selectedObj);
+                    }
+                    break;
+                case "Area":
+                    this.renderProperty("Area", selectedObj);
+                    this.fillArea(selectedObj, "#b6d8e7");
+                    if (inputID === undefined) {
+                        this.addNameArea(selectedObj);
+                    }
+                    break;
+            }
+        }
+        return
+    }
+
+    addForce() {
+        if (inputLoad === undefined && this.pen === undefined) {
+            //normal last multicurrent obj
+            this.renderObject(processingData.allObject);
+            //trace obj
+            let selectedObj = processingData.allObject.find(obj => obj.isIn([this.currentPos.x, this.currentPos.y]));
+            this.arrCurObj[0] = selectedObj;
+            if (selectedObj === undefined) {
+                this.renderProperty("off", selectedObj);
+                this.arrCurObj = [];
+                return;
+            }
+            //render Prop
+            switch (selectedObj.className) {
+                case "Point":
+                    if (this.curValPointLoad.value === "On" || this.curValMoment.value === "On") {
+                        this.renderProperty("point", selectedObj);
+                        this.drawPoint(selectedObj, "green");
+                        if (inputLoad === undefined) {
+                            inputForce(selectedObj.x, selectedObj.y, selectedObj);
+                        }
+                    }
+                case "Line":
+                    if (this.curValPressLoad.value === "On") {
+                        this.renderProperty("line", selectedObj);
+                        this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                        if (inputLoad === undefined) {
+                            let xM1 = (selectedObj.Point[1].x - selectedObj.Point[0].x) / 2;
+                            let yM1 = (selectedObj.Point[1].y - selectedObj.Point[0].y) / 2;
+                            let xBox = 25 / 2;
+                            let yBox = 25 / 2;
+                            let xM2 = (selectedObj.Point[0].x + xM1) - xBox;
+                            let yM2 = (selectedObj.Point[0].y + yM1) - yBox;
+                            inputForce(xM2, yM2, selectedObj);
+                        }
+                    }
+                    break;
+            }
+        }
+        return
     }
 
     getAngleLineAndOx(line) {
@@ -1045,115 +1144,6 @@ class Paint {
         return listPoint;
     }
 
-    mouseUp(event) {
-        this.isPainting = false;
-        this.isCancled = true;
-    }
-
-    mouseMove(event) {
-        let mouseMovePos = this.getMousePosition(event);
-        this.currentMouseMovePos = this.getMousePosition(event);
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
-            //display coord
-            document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
-            //
-        };
-
-        if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
-
-            this.arrMove.push(getNearest(this.arrGrid, this.currentPos)[0][0]);
-
-            if (this.pen != 'brush') {
-                for (var i = 0; i < this.arrMove.length; i++) {
-                    this.currentPos = this.arrMove[i];
-                }
-            }
-        }
-
-        // not link position of start and end point
-        if (this.isPainting) {
-            // brush
-            // if (this.pen === 'brush') {
-            //     this.drawBrush(
-            //         this.currentPos,
-            //         this.currentMouseMovePos
-            //     );
-            // };
-        };
-
-        //line link start and end node
-        if (this.pen === 'line') {
-
-            if (!this.isCancled) {
-                return
-            };
-            this.undo();
-            this.drawLine
-                (
-                    this.mouseDownPos,
-                    this.currentPos
-                );
-        };
-
-        // if (this.pen === 'rect') {
-        //     if (!this.isCancled) {
-        //         return
-        //     };
-        //     this.undo();
-        //     this.drawRect
-        //         (
-        //             this.mouseDownPos,
-        //             this.currentPos
-        //         );
-
-        // };
-        // if (this.pen === 'circle') {
-        //     if (!this.isCancled) {
-        //         return
-        //     };
-        //     this.undo();
-        //     this.drawCicle
-        //         (
-        //             this.mouseDownPos,
-        //             this.currentPos
-        //         );
-        // };
-
-        // if (this.pen === 'spl') {
-        //     if (!this.isCancled) {
-        //         return
-        //     };
-        //     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // vo hieu hoa this.undo()
-        //     let arrXs = [...this.arrSPLX]
-        //     arrXs.push(this.currentPos.x)
-        //     let arrYs = [...this.arrSPLY]
-        //     arrYs.push(this.currentPos.y)
-        //     console.log("X", arrXs)
-        //     console.log("Y", arrYs)
-        //     this.drawSPLine(arrXs, arrYs);
-        // }
-
-
-
-        if (this.pen === 'select') {
-            // //trace area
-            // //need optimize
-            // for (let area of processingData.allArea) {
-            //     if (area.areaTouch([this.currentMouseMovePos.x,this.currentMouseMovePos.y])) {
-            //         this.renderProperty("area",area);
-            //         this.fillArea(area,"#b6d8e7");
-            //         return;
-            //     } else {
-            //         this.fillArea(area);
-            //         this.renderProperty("off",area);
-            //     };
-            // };
-
-        }
-
-        this.currentPos = mouseMovePos;
-    }
-
     drawPoint(point, color = "red") {
         this.ctx.beginPath();
         this.ctx.arc(point.x, point.y, 3.5, 0, 2 * Math.PI);
@@ -1262,7 +1252,7 @@ class Paint {
             r = 20,
             sAngle = Math.PI,
             eAngle = 0;
-            
+
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = lineWidth;
         this.ctx.arc(x, y, r, sAngle, eAngle);
@@ -1412,14 +1402,14 @@ class Paint {
         for (let i = arrObj.length - 1; i >= 0; i--) {
             if (arrObj[i] instanceof Area) {
                 this.fillArea(arrObj[i]);
-                if (arrObj[i].name !== undefined) {
+                if (arrObj[i].name !== undefined && arrObj[i].name !== null) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
             }
             else if (arrObj[i] instanceof Line) {
                 this.drawLine(arrObj[i].Point[0],
                     arrObj[i].Point[1], arrObj[i].color, arrObj[i].width);
-                if (arrObj[i].name !== undefined) {
+                if (arrObj[i].name !== undefined && arrObj[i].name !== null) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
                 if (arrObj[i].force[0] !== undefined && arrObj[i].force[0] !== 0) {
@@ -1431,7 +1421,7 @@ class Paint {
             }
             else if (arrObj[i] instanceof Point) {
                 this.drawPoint(arrObj[i]);
-                if (arrObj[i].name !== undefined) {
+                if (arrObj[i].name !== undefined && arrObj[i].name !== null) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
                 if (arrObj[i].force[0] !== undefined || arrObj[i].force[1] !== undefined) {
