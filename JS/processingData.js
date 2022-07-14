@@ -702,6 +702,7 @@ function inputName(x, y, obj) {
             inputID = undefined;
             PaintIn.renderObject(processingData.allObject);
             PaintIn.arrCurObj = [];
+            PaintIn.isCancled = false;
         },
     });
 };
@@ -724,7 +725,6 @@ function inputForce(x, y, obj) {
         borderRadius: 3,
 
         onsubmit: function () {
-
             if (PaintIn.curValPointLoad.value === "On") {
                 if ((this.value()).includes(",") === true) {
                     obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
@@ -738,15 +738,22 @@ function inputForce(x, y, obj) {
             if (PaintIn.curValMoment.value === "On") {
                 obj.moment[0] = Number(this.value());
             }
-            if (PaintIn.curValPressLoad.value === "On") {
-                obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
-                obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
 
+            if (PaintIn.curValPressLoad.value === "On") {
+                if ((this.value()).includes(",") === true) {
+                    obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
+                    obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
+                }
+                else {
+                    obj.force[0] = Number(this.value());;
+                    obj.force[1] = 0;
+                }
             }
             this.destroy();
             inputLoad = undefined;
             PaintIn.renderObject(processingData.allObject);
             PaintIn.arrCurObj = [];
+            PaintIn.isCancled = false;
         },
     });
 };
