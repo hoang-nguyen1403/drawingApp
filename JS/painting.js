@@ -154,6 +154,7 @@ class Paint {
             // this.offButtonDraw(this.currentValueRect, "rect");
             // this.offButtonDraw(this.currentValueCircle, "circle");
             // this.offButtonDraw(this.currentValueSpl, "spl");
+            this.offButton(this.curValName, "valueName");
             this.offButton(this.curValPointLoad, "pointLoad");
             this.offButton(this.curValPressLoad, "pressLoad");
             this.offButton(this.curValMoment, "moment");
