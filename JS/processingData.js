@@ -541,6 +541,82 @@ class processingData {
         //update screen
         PaintIn.renderObject(processingData.allObject);
     }
+    // getNearest(listPoints, currentPoint, maxDistance) {
+    //     let distance = function (a, b) {
+    //         return math.norm([a[0] - b[0], a[1] - b[1]]);
+    //     }
+    //     let tree = new kdTree(listPoints, distance, [0, 1]);
+    //     return tree.nearest(currentPoint, 1, maxDistance)[0];
+    // };
+    getNearest(listPoints, currentPoint, maxDistance) {
+        var distance = function (a, b) {
+            return math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+        }
+        var tree = new kdTree(listPoints, distance, ["x", "y"]);
+        return tree.nearest(currentPoint, 1, maxDistance)[0];
+    };
+    moveObject(obj, newLocation) {
+        switch (obj.className) {
+            case "Point":
+                {
+                    obj.point = newLocation;
+                    obj.x = newLocation[0];
+                    obj.y = newLocation[1];
+
+                }
+                break;
+            case "Line":
+                {
+                    //move point
+                    let point1 = obj.Point[0].point;
+                    let point2 = obj.Point[1].point;
+                    let centerPoint = math.divide(math.add(point1, point2), 2);
+                    let translateVect = math.subtract(newLocation, centerPoint);
+                    let newPoint1 = math.add(point1, translateVect);
+                    let newPoint2 = math.add(point2, translateVect);
+                    //create new point obj
+                    let newPointObj1 = new Point(newPoint1, obj.Point[0].name);
+                    let newPointObj2 = new Point(newPoint2, obj.Point[1].name);
+                    //change old point
+                    obj.Point[0] = newPointObj1;
+                    obj.Point[1] = newPointObj2;
+                    break;
+                }
+            case "Area":
+                {
+                    let centerPoint = obj.Center;
+                    let translateVect = math.subtract(newLocation, centerPoint);
+                    // move line
+                    for (let line of obj.Line) {
+                        //move point
+                        let point1 = line.Point[0].point;
+                        let point2 = line.Point[1].point;
+                        let newPoint1 = math.add(point1, translateVect);
+                        let newPoint2 = math.add(point2, translateVect);
+                        //create new point obj
+                        let newPointObj1 = new Point(newPoint1, line.Point[0].name);
+                        let newPointObj2 = new Point(newPoint2, line.Point[1].name);
+                        //change old point
+                        let newLineObj = new Line(newPointObj1, newPointObj2, line.name, line.lineColor, line.lineWidth);
+                        //delete old line
+                        processingData.allLine.splice(processingData.allLine.indexOf(line),1);
+                        //
+                        obj.Line[obj.Line.indexOf(line)] = newLineObj;
+                    }
+                    //move center point
+                    obj.Center = newLocation;
+                    //move PointFlow
+                    for (let i = 0; i <= obj.PointFlow.length - 1; i++) {
+                        obj.PointFlow[i] = math.add(obj.PointFlow[i], translateVect);
+                    }
+                    break;
+                }
+        }
+        this.updateStorage()
+        //refresh screen
+        PaintIn.renderObject(processingData.allObject);
+    }
+
 };
 // Point class
 class Point {
@@ -613,12 +689,9 @@ class Area {
         };
         this.Area = math.abs(S);
         //center
-        let arrX = [];
-        let arrY = [];
-        for (let Line of LineList) {
-            arrX.push(Line.Point[0].x);
-            arrY.push(Line.Point[0].y);
-        };
+        let arrX = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 0));
+        let arrY = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 1));;
+
         let CenterX = math.sum(arrX) / arrX.length;
         let CenterY = math.sum(arrY) / arrY.length;
         this.Center = [CenterX, CenterY];
@@ -672,11 +745,12 @@ processingData.allAreaCenter = [];
 
 function getNearest(listPoints, currentPoint) {
     var distance = function (a, b) {
-        return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+        return math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     }
     var tree = new kdTree(listPoints, distance, ["x", "y"]);
     return nearest = tree.nearest(currentPoint, 1);
 };
+
 
 var inputID;
 
@@ -754,6 +828,7 @@ function inputForce(x, y, obj) {
             PaintIn.renderObject(processingData.allObject);
             PaintIn.arrCurObj = [];
             PaintIn.isCancled = false;
+
         },
     });
 };
