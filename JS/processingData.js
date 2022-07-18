@@ -13,19 +13,19 @@ class processingData {
     };
     //----Create Object
     //Point
-    createPoint(arrPointX, arrPointY, nameList, forceList) {
+    createPoint(arrPointX, arrPointY, nameList, pointLoadsList) {
         let AllPointObj = [];
         for (let index = 0; index <= arrPointX.length - 1; index++) {
             let point = [arrPointX[index], arrPointY[index]];
             let pointName = nameList[index];
-            let pointForce = forceList[index];
-            let PointObj = new Point(point, pointName, pointForce);
+            let pointLoads = pointLoadsList[index];
+            let PointObj = new Point(point, pointName, pointLoads);
             AllPointObj.push(PointObj);
         };
         return AllPointObj;
     };
     //Line
-    createLine(PointList, nameList, colorList, widthList, forceList) {
+    createLine(PointList, nameList, colorList, widthList, lineLoadsList) {
         let AllLineObj = [];
         for (let index = 0; index <= PointList.length - 2; index++) {
             let Point1 = PointList[index];
@@ -33,8 +33,8 @@ class processingData {
             let lineName = nameList[index];
             let lineColor = colorList[index];
             let lineWidth = widthList[index];
-            let lineForce = forceList[index];
-            let LineObj = new Line(Point1, Point2, lineName, lineColor, lineWidth, lineForce);
+            let lineLoads = lineLoadsList[index];
+            let LineObj = new Line(Point1, Point2, lineName, lineColor, lineWidth, lineLoads);
             AllLineObj.push(LineObj);
         };
         //Save in allline
@@ -191,8 +191,8 @@ class processingData {
                 arrEndLinePointName.push([Line_List_copy[i].Point[0].name, undefined]);
                 arrEndLineColor.push([Line_List_copy[i].color]);
                 arrEndLineWidth.push([Line_List_copy[i].width]);
-                arrEndLinePointForce.push([Line_List_copy[i].Point[0].force, undefined]);
-                arrEndLineForce.push([Line_List_copy[i].force])
+                arrEndLinePointForce.push([Line_List_copy[i].Point[0].pointLoads, undefined]);
+                arrEndLineForce.push([Line_List_copy[i].lineLoads])
 
             }
             if (JSON.stringify(endPoint2) !== JSON.stringify(arrIntersPoint.at(- 1))) {
@@ -204,8 +204,8 @@ class processingData {
                 arrEndLinePointName.push([undefined, Line_List_copy[i].Point[1].name]);
                 arrEndLineColor.push([Line_List_copy[i].color]);
                 arrEndLineWidth.push([Line_List_copy[i].width]);
-                arrEndLinePointForce.push([undefined, Line_List_copy[i].Point[0].force]);
-                arrEndLineForce.push([Line_List_copy[i].force])
+                arrEndLinePointForce.push([undefined, Line_List_copy[i].Point[0].pointLoads]);
+                arrEndLineForce.push([Line_List_copy[i].lineLoads])
             }
             //
             if (arrIntersPoint.length >= 2) {
@@ -218,7 +218,7 @@ class processingData {
                 }
                 processingData.prototype.inputRawData("line", arrSubLineX, arrSubLineY, undefined,
                     Array(arrSubLineX.length).fill(Line_List_copy[i].name), Array(arrSubLineX.length).fill(Line_List_copy[i].color),
-                    Array(arrSubLineX.length).fill(Line_List_copy[i].width), undefined, Array(arrSubLineX.length).fill(Line_List_copy[i].force));
+                    Array(arrSubLineX.length).fill(Line_List_copy[i].width), undefined, Array(arrSubLineX.length).fill(Line_List_copy[i].lineLoads));
             }
 
         }
@@ -387,11 +387,14 @@ class processingData {
         let segment_names = [];
         let surfaces = [];
         let surface_names = [];
+        let nodal_loads = [];
+        let segment_loads = [];
         num_nodes = processingData.allPoint.length;
         num_segments = processingData.allLine.length;
         for (let point of processingData.allPoint) {
             nodes.push(point.point);
             node_names.push(point.name);
+            nodal_loads.push(point.pointLoads);
         }
         for (let line of processingData.allLine) {
             let index1 = nodes.findIndex((value) => JSON.stringify(value) === JSON.stringify(line.Point[0].point));
@@ -399,6 +402,7 @@ class processingData {
             let segment = [index1, index2];
             segments.push(segment)
             segment_names.push(line.name)
+            segment_loads.push(line.lineLoads);
         }
         for (let area of processingData.allArea) {
             let surface = [];
@@ -419,7 +423,9 @@ class processingData {
             "segments": segments,
             "segment_names": segment_names,
             "surfaces": surfaces,
-            "surface_names": surface_names
+            "surface_names": surface_names,
+            "nodal_loads": nodal_loads,
+            "segment_loads": segment_loads,
         }
         let jsonData = JSON.stringify(jsonObject)
         //save to file
@@ -488,7 +494,8 @@ class processingData {
         let nodeY = math.subset(inputData["node_coords"], math.index(math.range(0, inputData["node_coords"].length), 1));
         nodeX = nodeX.flat();
         nodeY = nodeY.flat();
-        let allPoint = this.createPoint(nodeX, nodeY, inputData["node_names"], Array(nodeX.length).fill(undefined));
+        let listloadPoints = inputData["nodal_loads"];
+        let allPoint = this.createPoint(nodeX, nodeY, inputData["node_names"], listloadPoints);
 
         //create line
         let allLine = [];
@@ -498,8 +505,8 @@ class processingData {
             let lineName = inputData["segment_names"][i];
             let lineWidth = PaintIn.currentWidth;
             let lineColor = PaintIn.currentColor;
-            let lineForce = undefined;
-            let line = new Line(point1, point2, lineName, lineColor, lineWidth, lineForce, undefined);
+            let lineLoads = inputData["segment_loads"][i];
+            let line = new Line(point1, point2, lineName, lineColor, lineWidth, lineLoads);
             allLine.push(line)
         }
         let allArea = [];
@@ -634,7 +641,7 @@ class processingData {
 };
 // Point class
 class Point {
-    constructor(Arr, pointName) {
+    constructor(Arr, pointName, pointLoads = null) {
         this.point = Arr;
         this.x = Arr[0];
         this.y = Arr[1];
@@ -642,7 +649,7 @@ class Point {
         this.name = pointName;
         this.force = [];
         this.moment = [];
-        this.pointLoads = []
+        this.pointLoads = pointLoads;
     };
     //Method
     isIn(mouse) {
@@ -652,14 +659,14 @@ class Point {
 
 // Line class
 class Line {
-    constructor(Point1, Point2, lineName, lineColor, lineWidth) {
+    constructor(Point1, Point2, lineName, lineColor, lineWidth, lineLoads = null) {
         this.Point = [Point1, Point2];
         this.color = lineColor;
         this.width = lineWidth;
         this.className = "Line";
         this.name = lineName;
         this.force = [];
-        this.lineloads = [];
+        this.lineLoads = lineLoads;
         //length
         this.length;
         this.getLength()
@@ -832,23 +839,63 @@ function inputForce(x, y, obj, loadKey) {
         borderRadius: 3,
 
         onsubmit: function () {
-            if (loadKey === "nodal_force") {
+            if (loadKey === "force") {
+                //first check
+                if (obj.pointLoads === null) {
+                    obj.pointLoads = [];
+                }
+                //
+                let force_x;
+                let force_y;
                 if ((this.value()).includes(",") === true) {
-                    obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
-                    obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
+                    force_x = Number((this.value()).slice(0, this.value().indexOf(',')));
+                    force_y = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
                 }
                 else {
-                    obj.force[0] = Number(this.value());
-                    obj.force[1] = 0;
+                    force_x = Number(this.value());
+                    force_y = 0;
                 }
+                forceObj = { "type": loadKey, "parameters": { "force_x": force_x, "force_y": force_y } };
+                obj.pointLoads.push(forceObj);
+
             } else if (loadKey === "moment") {
-                obj.moment[0] = Number(this.value());
-            }
-            else if (loadKey === "press") {
-                obj.force[1] = Number(this.value());
-            }
-            else if (loadKey === "axial") {
-                obj.force[0] = Number(this.value());
+                //first check
+                if (obj.pointLoads === null) {
+                    obj.pointLoads = [];
+                }
+                //
+                let moment = Number(this.value());
+                momentObj = { "type": loadKey, "parameters": { "value": moment } };
+                obj.pointLoads.push(momentObj);
+
+            } else if (loadKey === "normal_pressure") {
+                //first check
+                if (obj.lineLoads === null) {
+                    obj.lineLoads = [];
+                }
+                //
+                let node_0;
+                let node_1;
+                if ((this.value()).includes(",") === true) {
+                    node_0 = Number((this.value()).slice(0, this.value().indexOf(',')));
+                    node_1 = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
+                }
+                else {
+                    node_0 = Number(this.value());
+                    node_1 = node_0;
+                }
+                let pressureObj = { "type": loadKey, "parameters": { "node_0": node_0, "node_1": node_1 } };
+                obj.lineLoads.push(pressureObj);
+
+            } else if (loadKey === "axial_pressure") {
+                //first check
+                if (obj.lineLoads === null) {
+                    obj.lineLoads = [];
+                }
+                //
+                let value = Number(this.value());
+                let axialPressureObj = { "type": loadKey, "parameters": { "value": value } };
+                obj.lineLoads.push(axialPressureObj);
             }
             this.destroy();
             inputLoad = undefined;
