@@ -1232,6 +1232,8 @@
       self._renderCanvas = null;
       self._shadowCanvas = null;
       self._renderCtx = null;
+      self._cursor = "default";
+      self._canvas.style.cursor = "default"
     },
 
     /**
