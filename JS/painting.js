@@ -153,6 +153,9 @@ class Paint {
         }
         //ESC
         if (event.keyCode === 27) {
+            if (this.pen === "line") {
+                processingData.prototype.areaDetect(processingData.allLine);
+            }
             this.isCancled = false;
             // this.offButtonDraw(this.currentValueBrush, "brush");
             this.offButtonDraw(this.currentValueLine, "line");
@@ -207,7 +210,6 @@ class Paint {
                 }
             }
 
-            processingData.prototype.areaDetect(processingData.allLine);
             // add node to arrGrid
             this.addNode();
             this.renderProperty("off", "");
@@ -648,13 +650,12 @@ class Paint {
             this.arr.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
 
             if (this.pen === 'line') {
-                for (let i = 0; i < this.arr.length; i++) {
-                    this.mouseDownPos = this.arr[i];
-                }
+                let nearPoint = processingData.prototype.getNearest(this.arrGrid, this.currentPos);
+                this.mouseDownPos = nearPoint[0];
                 this.arrLineX.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].x);
                 this.arrLineY.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0].y);
-                this.arrLineColor.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
-                this.arrLineWidth.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
+                // this.arrLineColor.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
+                // this.arrLineWidth.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
                 // console.log('arrLine', this.arrLineX)
             };
             // if (this.pen === 'circle') {
@@ -801,14 +802,8 @@ class Paint {
         document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
         //
         if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
-
-            this.arrMove.push(getNearest(this.arrGrid, this.currentPos)[0][0]);
-
-            if (this.pen != 'brush') {
-                for (var i = 0; i < this.arrMove.length; i++) {
-                    this.currentPos = this.arrMove[i];
-                }
-            }
+            let nearPoint = processingData.prototype.getNearest(this.arrGrid, this.currentPos);
+            this.currentPos = nearPoint[0];
         } else {
             let arrPoints = [];
             processingData.allPoint.forEach((value) => arrPoints.push({ x: value.x, y: value.y }));
@@ -845,7 +840,7 @@ class Paint {
                 return
             };
             this.undo();
-            
+
             this.drawLine
                 (
                     this.mouseDownPos,
@@ -894,29 +889,29 @@ class Paint {
 
 
         // if (this.pen === 'select') {
-            // //trace area
-            // //need optimize
-            // for (let area of processingData.allArea) {
-            //     if (area.areaTouch([this.currentMouseMovePos.x,this.currentMouseMovePos.y])) {
-            //         this.renderProperty("area",area);
-            //         this.fillArea(area,"#b6d8e7");
-            //         return;
-            //     } else {
-            //         this.fillArea(area);
-            //         this.renderProperty("off",area);
-            //     };
-            // };
+        // //trace area
+        // //need optimize
+        // for (let area of processingData.allArea) {
+        //     if (area.areaTouch([this.currentMouseMovePos.x,this.currentMouseMovePos.y])) {
+        //         this.renderProperty("area",area);
+        //         this.fillArea(area,"#b6d8e7");
+        //         return;
+        //     } else {
+        //         this.fillArea(area);
+        //         this.renderProperty("off",area);
+        //     };
+        // };
 
         // }
 
         //drag
-        if (this.isPainting && this.arrCurObj.length !== 0 &&
-            this.curValPointLoad.value === "Off" &&
-            this.curValPressLoad.value === "Off" &&
-            this.curValMoment.value === "Off" &&
-            this.curValName.value === "Off" ) {
-            processingData.prototype.moveObject(this.arrCurObj[0], [this.currentPos.x, this.currentPos.y])
-        }
+        // if (this.isPainting && this.arrCurObj.length !== 0 &&
+        //     this.curValPointLoad.value === "Off" &&
+        //     this.curValPressLoad.value === "Off" &&
+        //     this.curValMoment.value === "Off" &&
+        //     this.curValName.value === "Off" ) {
+        //     processingData.prototype.moveObject(this.arrCurObj[0], [this.currentPos.x, this.currentPos.y])
+        // }
 
         this.currentPos = mouseMovePos;
     }
