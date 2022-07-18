@@ -1,6 +1,11 @@
 class Paint {
     constructor() {
         this.canvas = document.getElementById("myCanvas");
+        this.ctx = this.canvas.getContext("2d");
+
+        this.canvas.width = document.getElementById("drawing_page").clientWidth;
+        this.canvas.height = document.getElementById("drawing_page").clientHeight;
+
         this.toolbar = document.getElementById("tool_left");
         this.currentValueGrid = document.getElementById('grid');
 
@@ -15,13 +20,9 @@ class Paint {
 
         this.curValPointLoad = document.getElementById('pointLoad');
         this.curValPressLoad = document.getElementById('pressLoad');
+        this.curValAxialForce = document.getElementById('axialForce');
         this.curValMoment = document.getElementById('moment');
         this.curValDeleteForce = document.getElementById('deleteForce');
-
-        this.ctx = this.canvas.getContext("2d");
-
-        this.canvas.width = document.getElementById("drawing_page").clientWidth;
-        this.canvas.height = document.getElementById("drawing_page").clientHeight;
 
         //attLine
         this.currentColor = 'black';
@@ -66,7 +67,6 @@ class Paint {
         this.arrRectX = [];
         this.arrRectY = [];
         this.arrGrid = [];
-        // this.arr = [];
         this.arrMove = []; // mouseMovePos
         this.arrSPL = [];
         this.arrSPLX = [];
@@ -83,8 +83,6 @@ class Paint {
         this.arrCurValueObj = [];
         // this.hasInput = false;
         this.curPoint = [];
-        this.arr = []
-        //set origin
     }
 
     undo() {
@@ -104,7 +102,7 @@ class Paint {
         }
         else {
             currentActive.value = "Off";
-            this.pen = '';
+            this.pen = undefined;
             document.getElementById(nameID).classList.remove("active");
         }
     }
@@ -112,7 +110,7 @@ class Paint {
     offButtonDraw(currentActive, nameID) {
         if (currentActive.value === "On") {
             currentActive.value = "Off";
-            this.pen = '';
+            this.pen = undefined;
             document.getElementById(nameID).classList.remove("active");
             this.selectObj();
         }
@@ -150,6 +148,27 @@ class Paint {
                 // add node to arrGrid
                 this.addNode();
             };
+            if (this.curValName.value === "On") {
+                try {
+                    inputID.destroy();
+                    this.arrCurObj = [];
+                    inputID = undefined;
+                }
+                catch (error) {
+                    this.renderObject(processingData.allObject);
+                }
+            }
+
+            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
+                try {
+                    inputLoad.destroy();
+                    this.arrCurObj = [];
+                    inputLoad = undefined;
+                }
+                catch (error) {
+                    this.renderObject(processingData.allObject);
+                }
+            }
         }
         //ESC
         if (event.keyCode === 27) {
@@ -165,6 +184,7 @@ class Paint {
             this.offButton(this.curValName, "valueName");
             this.offButton(this.curValPointLoad, "pointLoad");
             this.offButton(this.curValPressLoad, "pressLoad");
+            this.offButton(this.curValAxialForce, "axialForce");
             this.offButton(this.curValMoment, "moment");
 
             this.pen = undefined;
@@ -199,7 +219,7 @@ class Paint {
                 }
             }
 
-            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
                 try {
                     inputLoad.destroy();
                     this.arrCurObj = [];
@@ -299,6 +319,7 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
         this.onOffButtonDraw(this.currentValueLine, "line");
 
     }
@@ -351,10 +372,10 @@ class Paint {
     // }
 
     selectObj(event) {
-        if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValMoment.value === "Off") {
+        if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValAxialForce.value === "Off" && this.curValMoment.value === "Off") {
             this.curValSelect = "On";
             this.isCancled = false;
-            if (event.ctrlKey) {
+            if (window.event.ctrlKey) {
                 //normal last current obj
                 if (this.arrCurObj[0] instanceof Line) {
                     this.drawLine(this.arrCurObj[0].Point[0], this.arrCurObj[0].Point[1], this.arrCurObj[0].color);
@@ -453,6 +474,7 @@ class Paint {
         this.offButton(this.curValMoment, "moment");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
 
         this.onOffButton(this.curValName, "valueName");
     }
@@ -467,6 +489,7 @@ class Paint {
         // this.offButton(this.currentValueSelect, "select")
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValPointLoad, "pointLoad");
@@ -484,9 +507,28 @@ class Paint {
         // this.offButton(this.currentValueSelect, "select")
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValPressLoad, "pressLoad");
+
+        this.renderObject(processingData.allObject);
+    }
+
+    addValAxialForce() {
+        this.pen = undefined;
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButton(this.currentValueSelect, "select")
+        this.offButton(this.curValName, "valueName");
+        this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValMoment, "moment");
+        this.offButton(this.curValPressLoad, "pressLoad");
+
+        this.onOffButton(this.curValAxialForce, "axialForce");
 
         this.renderObject(processingData.allObject);
     }
@@ -502,6 +544,7 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
 
         this.onOffButton(this.curValMoment, "moment");
 
@@ -519,10 +562,10 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValDeleteForce, "deleteForce");
-
         this.renderObject(processingData.allObject);
     }
 
@@ -628,13 +671,23 @@ class Paint {
 
     getMousePosition(event) {
         let rect = this.canvas.getBoundingClientRect();
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.curValSelect === "On" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.curValSelect === "On" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
             return {
                 x: (event.clientX - rect.left),
                 y: (event.clientY - rect.top)
             };
         };
     }
+
+    // changeOrigin(event) {
+    //     let offSetX = this.canvas.width / 2;
+    //     let offSetY = this.canvas.height / 2;
+    //     var pos = this.getMousePosition(event);
+    //     return {
+    //         x: (pos.x - offSetX),
+    //         y: (pos.y - offSetY)
+    //     };
+    // }
 
     mouseDown(event) {
         this.isPainting = true;
@@ -647,7 +700,6 @@ class Paint {
         if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
             // console.log(this.arrGrid.length)
             //choose the nearest mouseDown
-            this.arr.push(getNearest(this.arrGrid, this.mouseDownPos)[0][0]);
 
             if (this.pen === 'line') {
                 let nearPoint = processingData.prototype.getNearest(this.arrGrid, this.currentPos);
@@ -723,7 +775,7 @@ class Paint {
         };
 
         //Load
-        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
+        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
             this.addForce();
         }
 
@@ -797,7 +849,9 @@ class Paint {
 
     mouseMove(event) {
         let mouseMovePos = this.getMousePosition(event);
+        // this.currentMouseMovePos = this.getMousePosition(event);
         this.currentMouseMovePos = this.getMousePosition(event);
+
         //
         document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
         //
@@ -811,6 +865,8 @@ class Paint {
             let nearPoint = processingData.prototype.getNearest(arrPoints, this.currentPos, 10);
             if (nearPoint !== undefined) {
                 this.currentPos = nearPoint[0];
+            } else {
+                this.currentPos = mouseMovePos;
             }
         }
         // } else if (this.currentValueGrid.value == "Off" && this.currentPos != undefined && processingData.allPoint.length !== 0) {
@@ -904,7 +960,7 @@ class Paint {
 
         // }
 
-        //drag
+        // drag
         // if (this.isPainting && this.arrCurObj.length !== 0 &&
         //     this.curValPointLoad.value === "Off" &&
         //     this.curValPressLoad.value === "Off" &&
@@ -935,14 +991,14 @@ class Paint {
 
     addNameArea(Obj) {
         //    choose position to display box input
-        let xC = Obj.Center[0];
-        let yC = Obj.Center[1];
+        let xC = Obj.center[0];
+        let yC = Obj.center[1];
         inputName(xC, yC, Obj);
     }
 
     addName() {
         //addName
-        if (inputID === undefined && this.pen === undefined) {
+        if (inputID === undefined && (this.pen === undefined || this.pen === 'line')) {
             //normal last multicurrent obj
             this.renderObject(processingData.allObject);
             //trace obj
@@ -982,7 +1038,7 @@ class Paint {
     }
 
     addForce() {
-        if (inputLoad === undefined && this.pen === undefined) {
+        if (inputLoad === undefined && (this.pen === undefined || this.pen === 'line')) {
             //normal last multicurrent obj
             this.renderObject(processingData.allObject);
             //trace obj
@@ -996,25 +1052,34 @@ class Paint {
             //render Prop
             switch (selectedObj.className) {
                 case "Point":
-                    if (this.curValPointLoad.value === "On" || this.curValMoment.value === "On") {
-                        this.renderProperty("point", selectedObj);
-                        this.drawPoint(selectedObj, "green");
+                    this.renderProperty("point", selectedObj);
+                    this.drawPoint(selectedObj, "green");
+                    if (this.curValPointLoad.value === "On") {
                         if (inputLoad === undefined) {
-                            inputForce(selectedObj.x, selectedObj.y, selectedObj);
+                            inputForce(selectedObj.x, selectedObj.y, selectedObj, "nodal_force");
                         }
                     }
-                case "Line":
-                    if (this.curValPressLoad.value === "On") {
-                        this.renderProperty("line", selectedObj);
-                        this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                    else if (this.curValMoment.value === "On") {
                         if (inputLoad === undefined) {
-                            let xM1 = (selectedObj.Point[1].x - selectedObj.Point[0].x) / 2;
-                            let yM1 = (selectedObj.Point[1].y - selectedObj.Point[0].y) / 2;
-                            let xBox = 25 / 2;
-                            let yBox = 25 / 2;
-                            let xM2 = (selectedObj.Point[0].x + xM1) - xBox;
-                            let yM2 = (selectedObj.Point[0].y + yM1) - yBox;
-                            inputForce(xM2, yM2, selectedObj);
+                            inputForce(selectedObj.x, selectedObj.y, selectedObj, "moment");
+                        }
+                    }
+                    break;
+                case "Line":
+                    this.renderProperty("line", selectedObj);
+                    this.drawLine(selectedObj.Point[0], selectedObj.Point[1], "#0000ff", selectedObj.width);
+                    if (inputLoad === undefined) {
+                        let xM1 = (selectedObj.Point[1].x - selectedObj.Point[0].x) / 2;
+                        let yM1 = (selectedObj.Point[1].y - selectedObj.Point[0].y) / 2;
+                        let xBox = 25 / 2;
+                        let yBox = 25 / 2;
+                        let xM2 = (selectedObj.Point[0].x + xM1) - xBox;
+                        let yM2 = (selectedObj.Point[0].y + yM1) - yBox;
+                        if (this.curValPressLoad.value === "On") {
+                            inputForce(xM2, yM2, selectedObj, "press");
+                        }
+                        if (this.curValAxialForce.value === "On") {
+                            inputForce(xM2, yM2, selectedObj, "axial");
                         }
                     }
                     break;
@@ -1069,8 +1134,8 @@ class Paint {
             try {
                 //Area
                 this.ctx.fillStyle = "blue";
-                let xC = Obj.Center[0];
-                let yC = Obj.Center[1];
+                let xC = Obj.center[0];
+                let yC = Obj.center[1];
                 this.ctx.fillText(text, xC, yC);
             }
             catch (error) {
@@ -1107,7 +1172,7 @@ class Paint {
         return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
     }
 
-    getPoint2ndOfLucDoc(point1, point2, pointAddForce, obj) {
+    getPoint2ndOfAxialForce(point1, point2, pointAddForce, obj) {
         let u;
         let a = point1.x - point2.x;
         let b = point1.y - point2.y;
@@ -1205,16 +1270,16 @@ class Paint {
         this.ctx.stroke();
     }
 
-    // drawBrush(start, end) {
-    //     this.ctx.strokeStyle = this.currentColor;
-    //     this.ctx.lineWidth = this.currentWidth;
-    //     this.ctx.lineCap = 'round';
-    //     this.ctx.beginPath();
-    //     this.ctx.moveTo(start.x, start.y);
-    //     this.ctx.lineTo(end.x, end.y);
-    //     this.ctx.stroke();
-    //     this.ctx.closePath();
-    // }
+    drawBrush(start, end) {
+        this.ctx.strokeStyle = this.currentColor;
+        this.ctx.lineWidth = this.currentWidth;
+        this.ctx.lineCap = 'round';
+        this.ctx.beginPath();
+        this.ctx.moveTo(start.x, start.y);
+        this.ctx.lineTo(end.x, end.y);
+        this.ctx.stroke();
+        this.ctx.closePath();
+    }
 
     drawLine(start, end, color = this.currentColor, width = this.currentWidth) {
         if (start != undefined) {
@@ -1229,27 +1294,27 @@ class Paint {
         }
     }
 
-    // drawRect(start, end, color = this.currentColor, width = this.currentWidth) {
-    //     if (start != undefined) {
-    //         this.ctx.strokeStyle = color;
-    //         this.ctx.lineWidth = width;
-    //         this.ctx.beginPath();
-    //         this.ctx.rect(start.x, start.y, end.x - start.x, end.y - start.y);
-    //         this.ctx.stroke();
-    //         this.ctx.closePath();
-    //     };
-    // }
+    drawRect(start, end, color = this.currentColor, width = this.currentWidth) {
+        if (start != undefined) {
+            this.ctx.strokeStyle = color;
+            this.ctx.lineWidth = width;
+            this.ctx.beginPath();
+            this.ctx.rect(start.x, start.y, end.x - start.x, end.y - start.y);
+            this.ctx.stroke();
+            this.ctx.closePath();
+        };
+    }
 
-    // drawCicle(start, end, width = this.currentWidth) {
-    //     if (start != undefined) {
-    //         this.ctx.strokeStyle = this.currentColor;
-    //         this.ctx.lineWidth = width;
-    //         this.ctx.beginPath();
-    //         let r = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
-    //         this.ctx.arc(start.x, start.y, r, 0, 2 * Math.PI);
-    //         this.ctx.stroke();
-    //     }
-    // }
+    drawCicle(start, end, width = this.currentWidth) {
+        if (start != undefined) {
+            this.ctx.strokeStyle = this.currentColor;
+            this.ctx.lineWidth = width;
+            this.ctx.beginPath();
+            let r = Math.sqrt((start.x - end.x) ** 2 + (start.y - end.y) ** 2);
+            this.ctx.arc(start.x, start.y, r, 0, 2 * Math.PI);
+            this.ctx.stroke();
+        }
+    }
 
     gradient(a, b) {
         return (b.y - a.y) / (b.x - a.x);
@@ -1290,10 +1355,25 @@ class Paint {
     drawForceInPoint(Obj, color = "#063970", lineWidth = 1) {
         //alpha = input;
         //get vecto u of Line 
-        let endPointX = { x: Obj.x + 35, y: Obj.y }; // parallel Ox u = {x:1, y:0}
+        let endPointX = { x: Obj.x + 35, y: Obj.y }; //parallel Ox u = {x:1, y:0}
         let endPointY = { x: Obj.x, y: Obj.y + 35 }; // parallel Oy u = {x:0, y:1}
-        this.drawForce(Obj.x, Obj.y, endPointX.x, endPointX.y, color, lineWidth);
-        this.drawForce(Obj.x, Obj.y, endPointY.x, endPointY.y, color, lineWidth);
+
+        if (Obj.force[0] !== 0) {
+            if (Obj.force[0] > 0) {
+                this.drawForce(Obj.x, Obj.y, endPointX.x, endPointX.y, color, lineWidth);
+            }
+            else {
+                this.drawForce(endPointX.x, endPointX.y, Obj.x, Obj.y, color, lineWidth);
+            }
+        }
+        if (Obj.force[1] !== 0) {
+            if (Obj.force[1] > 0) {
+                this.drawForce(Obj.x, Obj.y, endPointY.x, endPointY.y, color, lineWidth);
+            }
+            else {
+                this.drawForce(endPointY.x, endPointY.y, Obj.x, Obj.y, color, lineWidth);
+            }
+        }
     }
 
     drawMoment(Obj, color = "green", lineWidth = 1) {
@@ -1347,20 +1427,20 @@ class Paint {
             if (Obj.force[0] > 0.00001) {
                 let start = this.getPointInLineLucDoc(pointOffsetStart, pointOffsetEnd, Obj.length); //array
                 for (let i = 0; i < start.length; i++) {
-                    let endPoint = this.getPoint2ndOfLucDoc(Obj.Point[0], Obj.Point[1], start[i], Obj);
+                    let endPoint = this.getPoint2ndOfAxialForce(Obj.Point[0], Obj.Point[1], start[i], Obj);
                     this.drawForce(start[i].x, start[i].y, endPoint.x, endPoint.y, 'blue', lineWidth);
                 }
             }
             else {
                 let endPoint = this.getPointInLineLucDoc(pointOffsetStart, pointOffsetEnd, Obj.length); //array
                 for (let i = 0; i < endPoint.length; i++) {
-                    let start = this.getPoint2ndOfLucDoc(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
+                    let start = this.getPoint2ndOfAxialForce(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
                     this.drawForce(start.x, start.y, endPoint[i].x, endPoint[i].y, 'blue', lineWidth);
                 }
             }
         }
         if (Obj.force[1] !== undefined && Obj.force[1] !== 0) {
-            if (Obj.force[1] > 0.0001) {
+            if (Obj.force[1] > 0.00001) {
                 let startPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length); //array
                 for (let i = 0; i < startPoint.length; i++) {
                     let endPoint = this.getPoint2ndOfPress(Obj.Point[0], Obj.Point[1], startPoint[i], Obj);
@@ -1590,19 +1670,19 @@ class Paint {
                 <div>
                     <p>Area
                     </p>
-                    <div>${math.round(Obj.Area, 2)}
+                    <div>${math.round(Obj.area, 2)}
                     </div>
                 </div>
                 <div>
                     <p>Center
                     </p>
-                    <div>[${math.round(Obj.Center, 2)}]
+                    <div>[${math.round(Obj.center, 2)}]
                     </div>
                 </div>
                 <div>
                     <p>Perimeter
                     </p>
-                    <div>${math.round(Obj.Perimeter, 2)}
+                    <div>${math.round(Obj.perimeter, 2)}
                     </div>
                 </div>
                 <div>
