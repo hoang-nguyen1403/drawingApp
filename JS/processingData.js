@@ -559,6 +559,20 @@ class processingData {
         switch (obj.className) {
             case "Point":
                 {
+                    let linkAreas = [];
+                    let linkLines = [];
+                    //find line,area which link with this point
+                    for (let area of processingData.allArea) {
+                        for (let line of area.Line) {
+                            let point1 = line.Point[0];
+                            let point2 = line.Point[1];
+                            if (JSON.stringify(point1) === JSON.stringify(obj) &&
+                                JSON.stringify(point2) === JSON.stringify(obj)) {
+                                linkLines.push(line);
+                                if (JSON.stringify(linkAreas).indexOf(area) === -1) linkAreas.push(area);
+                            }
+                        }
+                    }
                     obj.point = newLocation;
                     obj.x = newLocation[0];
                     obj.y = newLocation[1];
@@ -584,7 +598,7 @@ class processingData {
                 }
             case "Area":
                 {
-                    let centerPoint = obj.Center;
+                    let centerPoint = obj.center;
                     let translateVect = math.subtract(newLocation, centerPoint);
                     // move line
                     for (let line of obj.Line) {
@@ -599,12 +613,12 @@ class processingData {
                         //change old point
                         let newLineObj = new Line(newPointObj1, newPointObj2, line.name, line.lineColor, line.lineWidth);
                         //delete old line
-                        processingData.allLine.splice(processingData.allLine.indexOf(line),1);
+                        processingData.allLine.splice(processingData.allLine.indexOf(line), 1);
                         //
                         obj.Line[obj.Line.indexOf(line)] = newLineObj;
                     }
                     //move center point
-                    obj.Center = newLocation;
+                    obj.center = newLocation;
                     //move PointFlow
                     for (let i = 0; i <= obj.PointFlow.length - 1; i++) {
                         obj.PointFlow[i] = math.add(obj.PointFlow[i], translateVect);
@@ -628,6 +642,7 @@ class Point {
         this.name = pointName;
         this.force = [];
         this.moment = [];
+        this.pointLoads = []
     };
     //Method
     isIn(mouse) {
@@ -639,15 +654,21 @@ class Point {
 class Line {
     constructor(Point1, Point2, lineName, lineColor, lineWidth) {
         this.Point = [Point1, Point2];
-        //
-        this.length = math.norm(math.subtract(Point1.point, Point2.point))
         this.color = lineColor;
         this.width = lineWidth;
         this.className = "Line";
         this.name = lineName;
         this.force = [];
+        this.lineloads = [];
+        //length
+        this.length;
+        this.getLength()
     }
-    //Method
+    //calc length of line
+    getLength() {
+        this.length = math.norm(math.subtract(this.Point[0].point, this.Point[1].point));
+    }
+    //inside-check
     isIn(Mouse) {
         let A_to_mouse = math.norm(math.subtract(this.Point[0].point, Mouse));
         let mouse_to_B = math.norm(math.subtract(Mouse, this.Point[1].point));
@@ -658,28 +679,49 @@ class Line {
 //Area
 class Area {
     constructor(LineList, AreaName, pointFlow) {
+        this.className = "Area";
         this.Line = LineList;
         this.PointFlow = pointFlow;
         this.name = AreaName;
         //perimeter
-        this.Perimeter = 0;
-        for (let Line of LineList) {
-            this.Perimeter += Line.length;
-        };
-        //area 
+        this.perimeter;
+        this.getPerimeter();
+        //area
+        this.area;
+        this.getArea();
+        //center
+        this.center = [];
+        this.getCenter();
+    }
+    //calc Perimeter
+    getPerimeter() {
+        let perimeter = 0;
+        for (let line of this.Line) {
+            perimeter += line.length;
+        }
+        this.perimeter = perimeter;
+    }
+    getCenter() {
+        let arrX = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 0));
+        let arrY = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 1));;
+        let centerX = math.sum(arrX) / arrX.length;
+        let centerY = math.sum(arrY) / arrY.length;
+        this.center = [centerX, centerY];
+    }
+    getArea() {
         let S = 0;
-        for (let i = 0; i <= LineList.length - 1; i++) {
-            let Point1 = LineList[i].Point[0].point;
-            let Point2 = LineList[i].Point[1].point;
+        for (let i = 0; i <= this.Line.length - 1; i++) {
+            let Point1 = this.Line[i].Point[0].point;
+            let Point2 = this.Line[i].Point[1].point;
             //
-            if (i === LineList.length - 1) {
-                if (JSON.stringify(LineList[0].Point).indexOf(JSON.stringify(Point1)) !== -1) {
+            if (i === this.Line.length - 1) {
+                if (JSON.stringify(this.Line[0].Point).indexOf(JSON.stringify(Point1)) !== -1) {
                     let swap = Point1;
                     Point1 = Point2;
                     Point2 = swap;
                 };
             } else {
-                if (JSON.stringify(LineList[i + 1].Point).indexOf(JSON.stringify(Point1)) !== -1) {
+                if (JSON.stringify(this.Line[i + 1].Point).indexOf(JSON.stringify(Point1)) !== -1) {
                     let swap = Point1;
                     Point1 = Point2;
                     Point2 = swap;
@@ -687,17 +729,8 @@ class Area {
             };
             S += 1 / 2 * (Point1[0] * Point2[1] - Point1[1] * Point2[0]);
         };
-        this.Area = math.abs(S);
-        //center
-        let arrX = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 0));
-        let arrY = math.subset(this.PointFlow, math.index(math.range(0, this.PointFlow.length - 1), 1));;
-
-        let CenterX = math.sum(arrX) / arrX.length;
-        let CenterY = math.sum(arrY) / arrY.length;
-        this.Center = [CenterX, CenterY];
-        //class Name
-        this.className = "Area";
-    };
+        this.area = math.abs(S);
+    }
     isIn([xMouse, yMouse]) {
         let count = 0;
         for (let Line of this.Line) {
@@ -715,7 +748,7 @@ class Area {
         return count % 2 === 0 ? false : true
     };
 };
-// Line class
+// Curve class
 class Curve {
     constructor(arrX, arrY, curveName, lineColor, lineWidth, force) {
         this.listX = arrX;
@@ -735,7 +768,7 @@ class Curve {
         return (A_to_mouse + mouse_to_B - this.length <= 0.1) ? true : false
     };
 
-};
+}
 processingData.allObject = [];
 processingData.allLine = [];
 processingData.allPoint = [];
@@ -783,7 +816,7 @@ function inputName(x, y, obj) {
 
 var inputLoad;
 
-function inputForce(x, y, obj) {
+function inputForce(x, y, obj, loadKey) {
     inputLoad = new CanvasInput({
         canvas: document.getElementById('myCanvas'),
         x: x,
@@ -799,29 +832,23 @@ function inputForce(x, y, obj) {
         borderRadius: 3,
 
         onsubmit: function () {
-            if (PaintIn.curValPointLoad.value === "On") {
+            if (loadKey === "nodal_force") {
                 if ((this.value()).includes(",") === true) {
                     obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
                     obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
                 }
                 else {
-                    obj.force[0] = Number(this.value());;
+                    obj.force[0] = Number(this.value());
                     obj.force[1] = 0;
                 }
-            }
-            if (PaintIn.curValMoment.value === "On") {
+            } else if (loadKey === "moment") {
                 obj.moment[0] = Number(this.value());
             }
-
-            if (PaintIn.curValPressLoad.value === "On") {
-                if ((this.value()).includes(",") === true) {
-                    obj.force[0] = Number((this.value()).slice(0, this.value().indexOf(',')));
-                    obj.force[1] = Number((this.value()).slice(this.value().indexOf(',') + 1, (this.value()).length));
-                }
-                else {
-                    obj.force[0] = Number(this.value());;
-                    obj.force[1] = 0;
-                }
+            else if (loadKey === "press") {
+                obj.force[1] = Number(this.value());
+            }
+            else if (loadKey === "axial") {
+                obj.force[0] = Number(this.value());
             }
             this.destroy();
             inputLoad = undefined;
