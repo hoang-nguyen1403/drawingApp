@@ -9,13 +9,14 @@ class Paint {
         this.currentValueCircle = document.getElementById('circle');
         this.currentValueRect = document.getElementById('rect');
         this.currentValueSpl = document.getElementById('spl');
-        this.curValSelect = "Off";
+        this.curValSelect = "On";
 
         this.curValName = document.getElementById('valueName');
 
         this.curValPointLoad = document.getElementById('pointLoad');
         this.curValPressLoad = document.getElementById('pressLoad');
         this.curValMoment = document.getElementById('moment');
+        this.curValDeleteForce = document.getElementById('deleteForce');
 
         this.ctx = this.canvas.getContext("2d");
 
@@ -26,7 +27,7 @@ class Paint {
         this.currentColor = 'black';
         this.currentWidth = 5;
         this.deltaGrid = 40;
-        this.pen = '';
+        this.pen = undefined;
 
         this.minGrid = 5;
         this.maxGrid = 100;
@@ -82,6 +83,8 @@ class Paint {
         this.arrCurValueObj = [];
         // this.hasInput = false;
         this.curPoint = [];
+        this.arr = []
+        //set origin
     }
 
     undo() {
@@ -144,6 +147,8 @@ class Paint {
             if (this.pen === 'line') {
                 this.undo();
                 processingData.prototype.areaDetect(processingData.allLine);
+                // add node to arrGrid
+                this.addNode();
             };
         }
         //ESC
@@ -203,6 +208,8 @@ class Paint {
             }
 
             processingData.prototype.areaDetect(processingData.allLine);
+            // add node to arrGrid
+            this.addNode();
             this.renderProperty("off", "");
             this.renderObject(processingData.allObject);
         }
@@ -345,7 +352,7 @@ class Paint {
         if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValMoment.value === "Off") {
             this.curValSelect = "On";
             this.isCancled = false;
-            if (window.event.ctrlKey) {
+            if (event.ctrlKey) {
                 //normal last current obj
                 if (this.arrCurObj[0] instanceof Line) {
                     this.drawLine(this.arrCurObj[0].Point[0], this.arrCurObj[0].Point[1], this.arrCurObj[0].color);
@@ -499,6 +506,24 @@ class Paint {
         this.renderObject(processingData.allObject);
     }
 
+    addValDeleteForce(event) {
+        this.pen = undefined;
+        // this.offButtonDraw(this.currentValueBrush, "brush");
+        // this.offButtonDraw(this.currentValueSpl, "spl");
+        // this.offButtonDraw(this.currentValueRect, "rect");
+        this.offButtonDraw(this.currentValueLine, "line");
+        // this.offButtonDraw(this.currentValueCircle, "circle");
+        // this.offButton(this.currentValueSelect, "select")
+        this.offButton(this.curValName, "valueName");
+        this.offButton(this.curValPointLoad, "pointLoad");
+        this.offButton(this.curValPressLoad, "pressLoad");
+        this.offButton(this.curValMoment, "moment");
+
+        this.onOffButton(this.curValDeleteForce, "deleteForce");
+
+        this.renderObject(processingData.allObject);
+    }
+
     clearAll() {
         this.isCancled = false;
         this.ctx.fillStyle = 'white';
@@ -581,6 +606,7 @@ class Paint {
         this.canvas.addEventListener('mousemove', (event) => this.mouseMove(event));
         document.addEventListener('keydown', (event) => this.keyDown(event));
         this.canvas.addEventListener('click', (event) => this.selectObj(event));
+        // this.canvas.addEventListener('click', (event) => this.deleteForce(event));
         //up file event
         document.getElementById('openFile').addEventListener('change', function () {
             var fr = new FileReader();
@@ -657,13 +683,17 @@ class Paint {
             // };
         }
         else {
+            let arrPoints = [];
+            processingData.allPoint.forEach((value) => arrPoints.push({ x: value.x, y: value.y }));
+            let nearPoint = processingData.prototype.getNearest(arrPoints, this.mouseDownPos, 10);
             if (this.pen === 'line') {
-                // this.arr = [];
-
+                if (nearPoint !== undefined) {
+                    this.mouseDownPos = nearPoint[0];
+                }
                 this.arrLineX.push(this.mouseDownPos.x);
                 this.arrLineY.push(this.mouseDownPos.y);
                 this.arrLineColor.push(this.currentColor);
-                this.arrLineWidth.push(this.currentWidth);
+                this.arrLineWidth.push(this.lineWidth);
                 // console.log('arrLine', this.arrLineX)
             };
 
@@ -756,8 +786,6 @@ class Paint {
         //     }
         // };
 
-        // add node to arrGrid
-        this.addNode();
 
     }
 
@@ -769,12 +797,9 @@ class Paint {
     mouseMove(event) {
         let mouseMovePos = this.getMousePosition(event);
         this.currentMouseMovePos = this.getMousePosition(event);
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.pen === "select" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
-            //display coord
-            document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
-            //
-        };
-
+        //
+        document.getElementById("display_coord").innerHTML = [this.currentMouseMovePos.x, this.currentMouseMovePos.y];
+        //
         if (this.currentValueGrid.value == "On" && this.arrGrid.length != 0 && this.currentPos != undefined) {
 
             this.arrMove.push(getNearest(this.arrGrid, this.currentPos)[0][0]);
@@ -784,7 +809,23 @@ class Paint {
                     this.currentPos = this.arrMove[i];
                 }
             }
+        } else {
+            let arrPoints = [];
+            processingData.allPoint.forEach((value) => arrPoints.push({ x: value.x, y: value.y }));
+
+            let nearPoint = processingData.prototype.getNearest(arrPoints, this.currentPos, 10);
+            if (nearPoint !== undefined) {
+                this.currentPos = nearPoint[0];
+            }
         }
+        // } else if (this.currentValueGrid.value == "Off" && this.currentPos != undefined && processingData.allPoint.length !== 0) {
+        //     let arrAllPoint = [];
+        //     processingData.allPoint.forEach((value) => arrAllPoint.push({ x: value.x, y: value.y }));
+
+        //     let nearPoint = getNearest(arrAllPoint, this.currentPos, 10)
+        //     console.log(nearPoint)
+
+        // }
 
         // not link position of start and end point
         if (this.isPainting) {
@@ -804,6 +845,7 @@ class Paint {
                 return
             };
             this.undo();
+            
             this.drawLine
                 (
                     this.mouseDownPos,
@@ -851,7 +893,7 @@ class Paint {
 
 
 
-        if (this.pen === 'select') {
+        // if (this.pen === 'select') {
             // //trace area
             // //need optimize
             // for (let area of processingData.allArea) {
@@ -865,6 +907,15 @@ class Paint {
             //     };
             // };
 
+        // }
+
+        //drag
+        if (this.isPainting && this.arrCurObj.length !== 0 &&
+            this.curValPointLoad.value === "Off" &&
+            this.curValPressLoad.value === "Off" &&
+            this.curValMoment.value === "Off" &&
+            this.curValName.value === "Off" ) {
+            processingData.prototype.moveObject(this.arrCurObj[0], [this.currentPos.x, this.currentPos.y])
         }
 
         this.currentPos = mouseMovePos;
@@ -976,6 +1027,10 @@ class Paint {
         }
         return
     }
+
+    // deleteForce(event){
+
+    // }
 
     getAngleLineAndOx(line) {
         //d1: Ox
@@ -1331,8 +1386,6 @@ class Paint {
         let arrAllPoint = [];
         processingData.allPoint.forEach((value) => arrAllPoint.push({ x: value.x, y: value.y }));
         this.arrRecordNode = arrAllPoint;
-
-        // console.log(processingData.allPoint)
         // console.log(this.arrGrid.length)
         // console.log(this.arrRecordNode)
 
@@ -1630,6 +1683,10 @@ class Paint {
         }
         this.ctx.fillStyle = fillColor;
         this.ctx.fill();
+    }
+    setCursor(style = "default") {
+        //set mouse cursor
+        this.canvas.style.cursor = style;
     }
 };
 
