@@ -20,7 +20,7 @@ class Paint {
 
         this.curValPointLoad = document.getElementById('pointLoad');
         this.curValPressLoad = document.getElementById('pressLoad');
-        this.curValAxialForce = document.getElementById('axialForce');
+        // this.curValAxialForce = document.getElementById('axialForce');
         this.curValMoment = document.getElementById('moment');
         this.curValDeleteForce = document.getElementById('deleteForce');
 
@@ -159,7 +159,7 @@ class Paint {
                 }
             }
 
-            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
+            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
                 try {
                     inputLoad.destroy();
                     this.arrCurObj = [];
@@ -208,7 +208,7 @@ class Paint {
                 }
             }
 
-            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
+            if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
                 try {
                     inputLoad.destroy();
                     this.arrCurObj = [];
@@ -231,7 +231,7 @@ class Paint {
             this.offButton(this.curValName, "valueName");
             this.offButton(this.curValPointLoad, "pointLoad");
             this.offButton(this.curValPressLoad, "pressLoad");
-            this.offButton(this.curValAxialForce, "axialForce");
+            // this.offButton(this.curValAxialForce, "axialForce");
             this.offButton(this.curValMoment, "moment");
         }
 
@@ -318,7 +318,7 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
         this.onOffButtonDraw(this.currentValueLine, "line");
 
     }
@@ -371,7 +371,7 @@ class Paint {
     // }
 
     selectObj(event) {
-        if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValAxialForce.value === "Off" && this.curValMoment.value === "Off") {
+        if (this.pen === undefined && this.curValName.value === "Off" && this.curValPointLoad.value === "Off" && this.curValPressLoad.value === "Off" && this.curValMoment.value === "Off") {
             this.curValSelect = "On";
             this.isCancled = false;
             if (window.event.ctrlKey) {
@@ -473,7 +473,7 @@ class Paint {
         this.offButton(this.curValMoment, "moment");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
 
         this.onOffButton(this.curValName, "valueName");
     }
@@ -488,7 +488,7 @@ class Paint {
         // this.offButton(this.currentValueSelect, "select")
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValPointLoad, "pointLoad");
@@ -506,7 +506,7 @@ class Paint {
         // this.offButton(this.currentValueSelect, "select")
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValPressLoad, "pressLoad");
@@ -514,23 +514,23 @@ class Paint {
         this.renderObject(processingData.allObject);
     }
 
-    addValAxialForce() {
-        this.pen = undefined;
-        // this.offButtonDraw(this.currentValueBrush, "brush");
-        // this.offButtonDraw(this.currentValueSpl, "spl");
-        // this.offButtonDraw(this.currentValueRect, "rect");
-        this.offButtonDraw(this.currentValueLine, "line");
-        // this.offButtonDraw(this.currentValueCircle, "circle");
-        // this.offButton(this.currentValueSelect, "select")
-        this.offButton(this.curValName, "valueName");
-        this.offButton(this.curValPointLoad, "pointLoad");
-        this.offButton(this.curValMoment, "moment");
-        this.offButton(this.curValPressLoad, "pressLoad");
+    // addValAxialForce() {
+    //     this.pen = undefined;
+    //     // this.offButtonDraw(this.currentValueBrush, "brush");
+    //     // this.offButtonDraw(this.currentValueSpl, "spl");
+    //     // this.offButtonDraw(this.currentValueRect, "rect");
+    //     this.offButtonDraw(this.currentValueLine, "line");
+    //     // this.offButtonDraw(this.currentValueCircle, "circle");
+    //     // this.offButton(this.currentValueSelect, "select")
+    //     this.offButton(this.curValName, "valueName");
+    //     this.offButton(this.curValPointLoad, "pointLoad");
+    //     this.offButton(this.curValMoment, "moment");
+    //     this.offButton(this.curValPressLoad, "pressLoad");
 
-        this.onOffButton(this.curValAxialForce, "axialForce");
+    //     this.onOffButton(this.curValAxialForce, "axialForce");
 
-        this.renderObject(processingData.allObject);
-    }
+    //     this.renderObject(processingData.allObject);
+    // }
 
     addValMoment() {
         this.pen = undefined;
@@ -543,7 +543,7 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
 
         this.onOffButton(this.curValMoment, "moment");
 
@@ -561,7 +561,7 @@ class Paint {
         this.offButton(this.curValName, "valueName");
         this.offButton(this.curValPointLoad, "pointLoad");
         this.offButton(this.curValPressLoad, "pressLoad");
-        this.offButton(this.curValAxialForce, "axialForce");
+        // this.offButton(this.curValAxialForce, "axialForce");
         this.offButton(this.curValMoment, "moment");
 
         this.onOffButton(this.curValDeleteForce, "deleteForce");
@@ -670,7 +670,7 @@ class Paint {
 
     getMousePosition(event) {
         let rect = this.canvas.getBoundingClientRect();
-        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.curValSelect === "On" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
+        if (this.pen === "brush" || this.pen === "line" || this.pen === "circle" || this.pen === "rect" || this.pen === "spl" || this.curValSelect === "On" || this.curValName.value === "On" || this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On") {
             return {
                 x: (event.clientX - rect.left),
                 y: (event.clientY - rect.top)
@@ -774,7 +774,7 @@ class Paint {
         };
 
         //Load
-        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValAxialForce.value === "On" || this.curValMoment.value === "On") {
+        if (this.curValPointLoad.value === "On" || this.curValPressLoad.value === "On" || this.curValMoment.value === "On") {
             this.addForce();
         }
 
@@ -1077,9 +1077,9 @@ class Paint {
                         if (this.curValPressLoad.value === "On") {
                             inputForce(xM2, yM2, selectedObj, "normal_pressure");
                         }
-                        else if (this.curValAxialForce.value === "On") {
-                            inputForce(xM2, yM2, selectedObj, "axial_pressure");
-                        }
+                        // else if (this.curValAxialForce.value === "On") {
+                        //     inputForce(xM2, yM2, selectedObj, "axial_pressure");
+                        // }
                     }
                     break;
             }
@@ -1160,44 +1160,83 @@ class Paint {
     }
 
     //point 2 of force vecto
-    get2ndPointVecto(point1, point2, pointAddForce, obj) {
+    get2ndPointPress(point1, point2, pointAddForce, obj) {
         let u;
         let a, b;
-        if (obj.force[0] !== undefined && obj.force[0] !== 0) {
-            a = point1.x - point2.x;
-            b = point1.y - point2.y;
-            u = { x: a, y: b };//perpendicular
+        for (let i = 0; i < obj.lineLoads.length; i++) {
+            if (obj.lineLoads[i].type === 'normal_pressure') {
+                a = point1.x - point2.x;
+                b = point1.y - point2.y;
+                u = { x: a, y: b };//perpendicular
 
-            let t = Math.sqrt(35 * 35 / (a * a + b * b))
-            return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
+                let t = Math.sqrt(35 * 35 / (a * a + b * b))
+                return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
+            }
         }
-
-        if (obj.force[1] !== undefined && obj.force[1] !== 0) {
-            a = point1.x - point2.x;
-            b = point1.y - point2.y;
-
-            u = { x: -b, y: a }; //parallel
-
-            let t = Math.sqrt(35 * 35 / (a * a + b * b))
-            return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
-        }
-
     }
 
-    // getPoint2ndOfAxialForce(point1, point2, pointAddForce, obj) {
-    //     let u;
-    //     let a = point1.x - point2.x;
-    //     let b = point1.y - point2.y;
+    get2ndPointAxial(point1, point2, pointAddForce, obj) {
+        let u;
+        let a = point1.x - point2.x;
+        let b = point1.y - point2.y;
 
-    //     u = { x: -b, y: a }; //parallel
+        for (let i = 0; i < obj.lineLoads.length; i++) {
+            if (obj.lineLoads[i].type === 'axial_pressure') {
+                a = point1.x - point2.x;
+                b = point1.y - point2.y;
+                u = { x: -b, y: a }; //parallel
 
-    //     let t = Math.sqrt(35 * 35 / (a * a + b * b))
-    //     return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
-    // }
+                let t = Math.sqrt(35 * 35 / (a * a + b * b))
+                return { x: pointAddForce.x - u.y * t, y: pointAddForce.y + u.x * t };
+            }
+        }
+    }
 
-    getPointInLine(point1, point2, lenghtLine, obj) {
+    getPointInLinePress(point1, point2, lenghtLine, obj) {
         //neu co luc doc, point 1 => use get point2 offet = 5
         let listPointPress = [];
+        let a = point2.x - point1.x;
+        let b = point2.y - point1.y;
+        let u = { x: a, y: b };
+        //set distance of 2 point
+        let distance = lenghtLine;
+        if (lenghtLine >= 50) {
+            while (distance > 50) {
+                distance /= 2;
+            }
+        }
+        else {
+            distance = lenghtLine / 2;
+        };
+        let delta = lenghtLine / distance;
+
+        //isParallel Ox or Oy => point 2 follow u
+        let maxT = Math.abs((point2.x - point1.x) / a);
+        //Oy
+        if (maxT !== 1) {
+            maxT = Math.abs((point2.y - point1.y) / b);
+        }
+        //get list Point in line with distance set
+        let t = [];
+        for (let i = 0; i < maxT; i += maxT / delta) {
+            t.push(i);
+        }
+
+        for (let i = 0; i < obj.lineLoads.length; i++) {
+            //draw press
+            if (obj.lineLoads[i].type === 'normal_pressure') {
+                t.push(maxT);
+                for (let j in t) {
+                    let arr = { x: point1.x + u.x * t[j], y: point1.y + u.y * t[j] }
+                    listPointPress.push(arr)
+                }
+                return listPointPress;
+            }
+        }
+    }
+
+    getPointInLineAxial(point1, point2, lenghtLine, obj) {
+        //neu co luc doc, point 1 => use get point2 offet = 5
         let listPointAxial = [];
         let a = point2.x - point1.x;
         let b = point2.y - point1.y;
@@ -1226,62 +1265,17 @@ class Paint {
             t.push(i);
         }
 
-        if (obj.force[0] !== undefined && obj.force[0] !== 0) {
-            for (let i in t) {
-                let arr = { x: point1.x + u.x * t[i], y: point1.y + u.y * t[i] }
-                listPointPress.push(arr)
+        for (let i = 0; i < obj.lineLoads.length; i++) {
+            //draw axial
+            if (obj.lineLoads[i].type === 'axial_pressure') {
+                for (let j in t) {
+                    let arr = { x: point1.x + u.x * t[j], y: point1.y + u.y * t[j] }
+                    listPointAxial.push(arr)
+                }
+                return listPointAxial;
             }
-
-            return listPointPress;
-        }
-        if (obj.force[1] !== undefined && obj.force[1] !== 0) {
-            t.push(maxT);
-            for (let i in t) {
-                let arr = { x: point1.x + u.x * t[i], y: point1.y + u.y * t[i] }
-                listPointAxial.push(arr)
-            }
-
-            return listPointAxial;
         }
     }
-
-    // getPointInLineAxial(point1, point2, lenghtLine) {
-    //     //neu co luc doc, point 1 => use get point2 offet = 5
-    //     let listPoint = [];
-    //     let a = point2.x - point1.x;
-    //     let b = point2.y - point1.y;
-    //     let u = { x: a, y: b };
-    //     //set distance of 2 point
-    //     let distance = lenghtLine;
-    //     if (lenghtLine >= 50) {
-    //         while (distance > 50) {
-    //             distance /= 2;
-    //         }
-    //     }
-    //     else {
-    //         distance = lenghtLine / 2;
-    //     };
-    //     let delta = lenghtLine / distance;
-
-    //     //isParallel Ox or Oy => point 2 follow u
-    //     let maxT = Math.abs((point2.x - point1.x) / a);
-    //     //Oy
-    //     if (maxT !== 1) {
-    //         maxT = Math.abs((point2.y - point1.y) / b);
-    //     }
-    //     //get list Point in line with distance set
-    //     let t = [];
-    //     for (let i = 0; i < maxT; i += maxT / delta) {
-    //         t.push(i);
-    //     }
-
-    //     for (let i in t) {
-    //         let arr = { x: point1.x + u.x * t[i], y: point1.y + u.y * t[i] }
-    //         listPoint.push(arr)
-    //     }
-
-    //     return listPoint;
-    // }
 
     drawPoint(point, color = "red") {
         this.ctx.beginPath();
@@ -1439,40 +1433,41 @@ class Paint {
         this.ctx.stroke();
     }
 
-    drawForceInLine(Obj, lineWidth = 1) {
-        //axial
-        if (Obj.force[0] !== undefined && Obj.force[0] !== 0) {
-            let pointOffsetStart = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[0]);
-            let pointOffsetEnd = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[1]);
-            if (Obj.force[0] > 0.00001) {
-                let start = this.getPointInLine(pointOffsetStart, pointOffsetEnd, Obj.length); //array
-                for (let i = 0; i < start.length; i++) {
-                    let endPoint = this.get2ndPointVecto(Obj.Point[0], Obj.Point[1], start[i], Obj);
-                    this.drawForce(start[i].x, start[i].y, endPoint.x, endPoint.y, 'blue', lineWidth);
-                }
-            }
-            else {
-                let endPoint = this.getPointInLine(pointOffsetStart, pointOffsetEnd, Obj.length); //array
-                for (let i = 0; i < endPoint.length; i++) {
-                    let start = this.get2ndPointVecto(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
-                    this.drawForce(start.x, start.y, endPoint[i].x, endPoint[i].y, 'blue', lineWidth);
-                }
-            }
-        }
-        //press
-        if (Obj.force[1] !== undefined && Obj.force[1] !== 0) {
-            if (Obj.force[1] > 0.00001) {
-                let startPoint = this.getPointInLine(Obj.Point[0], Obj.Point[1], Obj.length); //array
+    drawPressure(Obj, value, lineWidth = 1) {
+        if (value !== undefined && value !== 0) {
+            if (value > 0.00001) {
+                let startPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length, Obj); //array
                 for (let i = 0; i < startPoint.length; i++) {
-                    let endPoint = this.get2ndPointVecto(Obj.Point[0], Obj.Point[1], startPoint[i], Obj);
+                    let endPoint = this.get2ndPointPress(Obj.Point[0], Obj.Point[1], startPoint[i], Obj);
                     this.drawForce(startPoint[i].x, startPoint[i].y, endPoint.x, endPoint.y, 'red', lineWidth);
                 }
             }
             else {
-                let endPoint = this.getPointInLine(Obj.Point[0], Obj.Point[1], Obj.length); //array
+                let endPoint = this.getPointInLinePress(Obj.Point[0], Obj.Point[1], Obj.length, Obj); //array
                 for (let i = 0; i < endPoint.length; i++) {
-                    let startPoint = this.get2ndPointVecto(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
+                    let startPoint = this.get2ndPointPress(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
                     this.drawForce(startPoint.x, startPoint.y, endPoint[i].x, endPoint[i].y, 'red', lineWidth);
+                }
+            }
+        }
+    }
+
+    drawAxialPressure(Obj, value, lineWidth = 1) {
+        if (value !== undefined && value !== 0) {
+            let pointOffsetStart = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[0]);
+            let pointOffsetEnd = this.getPointOffset(Obj.Point[0], Obj.Point[1], Obj.Point[1]);
+            if (value > 0.00001) {
+                let start = this.getPointInLineAxial(pointOffsetStart, pointOffsetEnd, Obj.length, Obj); //array
+                for (let i = 0; i < start.length; i++) {
+                    let endPoint = this.get2ndPointAxial(Obj.Point[0], Obj.Point[1], start[i], Obj);
+                    this.drawForce(start[i].x, start[i].y, endPoint.x, endPoint.y, 'blue', lineWidth);
+                }
+            }
+            else {
+                let endPoint = this.getPointInLineAxial(pointOffsetStart, pointOffsetEnd, Obj.length, Obj); //array
+                for (let i = 0; i < endPoint.length; i++) {
+                    let start = this.get2ndPointAxial(Obj.Point[0], Obj.Point[1], endPoint[i], Obj);
+                    this.drawForce(start.x, start.y, endPoint[i].x, endPoint[i].y, 'blue', lineWidth);
                 }
             }
         }
@@ -1562,13 +1557,18 @@ class Paint {
                 if (arrObj[i].name !== undefined && arrObj[i].name !== null) {
                     this.drawText(arrObj[i], arrObj[i].name);
                 }
-                //draw press
-                if (arrObj[i].pointLoads !== null && arrObj[i].force[0] !== 0) {
-                    this.drawForceInLine(arrObj[i]);
-                }
-                //draw axial
-                if (arrObj[i].pointLoads !== null !== undefined && arrObj[i].force[1] !== 0) {
-                    this.drawForceInLine(arrObj[i]);
+
+                if (arrObj[i].lineLoads !== null) {
+                    for (let j = 0; j < arrObj[i].lineLoads.length; j++) {
+                        //draw press
+                        if (arrObj[i].lineLoads[j].type === 'normal_pressure') {
+                            this.drawPressure(arrObj[i], arrObj[i].lineLoads[j].parameters.node_0);
+                        }
+                        //draw axial
+                        if (arrObj[i].lineLoads[j].type === 'axial_pressure') {
+                            this.drawAxialPressure(arrObj[i], arrObj[i].lineLoads[j].parameters.value);
+                        }
+                    }
                 }
             }
             else if (arrObj[i] instanceof Point) {
